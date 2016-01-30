@@ -128,7 +128,7 @@
         classObj.assocs = configuration.assocs;
         instanceObj.assocs = configuration.assocs;
       }
-      
+
       if (configuration.baseUrl) {
         classObj.baseUrl = configuration.baseUrl;
         instanceObj.baseUrl = configuration.baseUrl;
@@ -143,12 +143,10 @@
       return classObj;
     },
     fetchAll: function() {
-      return fetch(this.url(),
-        credentials: "same-origin"),
+      return fetch(this.url())
         .then(function(response) {
           return response.json();
-        }
-      );
+        };
     },
 
     fetchOne: function(id) {
