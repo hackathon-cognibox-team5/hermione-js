@@ -8,7 +8,19 @@
       setPreviousValue: function(value) {
         this.isDirty = false;
         this.previousValue = value || this.value;
-      }
+      },
+    errors: {},
+    validate: function(){
+      var self = this;
+      self.errors = {};
+      _.each(self.validations, function(validation, key){
+        var tata = {};
+        tata[key] = validation;
+        var valid = validate.single(self.value, tata);
+        if(!(valid === undefined))
+          self.errors[key] = valid;
+      });
+    }
     }, properties);
 
     var attrObjValue;
