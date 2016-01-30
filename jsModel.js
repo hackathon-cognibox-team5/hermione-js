@@ -17,7 +17,7 @@
           var singleValidation = {};
           singleValidation[key] = validation;
           var valid = validate.single(self.value, singleValidation);
-          if(!(valid === undefined))
+          if(valid !== undefined)
             self.errors[key] = valid;
         });
       }
@@ -47,7 +47,7 @@
     }, properties);
     var assocValue;
     Object.defineProperty(assocObject, 'associations',{
-      
+
     });
     return assocObject;
   }
