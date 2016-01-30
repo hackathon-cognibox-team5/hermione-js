@@ -1,5 +1,25 @@
-var attributeObj = {};
 var attributeObjDefinition = {};
+
+function createAttribute(properties) {
+  var attrObject = _.extend({
+    previousValue: undefined,
+    setPreviousValue: function(value) {
+      this.previousValue = value || this.value;
+    }
+  }, properties);
+
+  var attrObjValue;
+  Object.defineProperty(attrObject, 'value', {
+    get: function() {
+      return attrObjValue;
+    },
+    set: function(value) {
+      attrObjValue = value;
+    }
+  });
+
+  return attrObject;
+}
 
 var JsModel = {
   attrs: {},
@@ -10,11 +30,12 @@ var JsModel = {
 
     obj.attrs = _.extend({}, this.attrs);
     _.each(obj.attrs, function(value, key) {
-      obj.attrs[key] = _.extend({}, attributeObj, value);
+      obj.attrs[key] = createAttribute(value);
     });
 
     _.each(properties, function(value, key) {
       obj.attrs[key].value = value;
+      obj.attrs[key].setPreviousValue();
     });
 
     return obj;
