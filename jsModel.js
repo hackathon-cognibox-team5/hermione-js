@@ -21,6 +21,18 @@ function createAttribute(properties) {
   return attrObject;
 }
 
+function createAssociation(properties) {
+  var assocObject = _.extend({
+    
+  }, properties);
+  var assocValue;
+  Object.defineProperty(assocObject, 'associations',{
+
+  });
+
+  return assocObject;
+}
+
 var JsModel = {
   attrs: {},
 
@@ -67,6 +79,10 @@ var JsModel = {
     if (configuration.name) {
       classObj.name = configuration.name;
       instanceObj.name = configuration.name;
+    }
+    if(configuration.associations) {
+      classObj.associations = configuration.associations;
+      instanceObj.associations = configuration.associations;
     }
     return classObj;
   }
