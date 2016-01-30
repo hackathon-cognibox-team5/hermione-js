@@ -1,6 +1,18 @@
 var attributeObj = {};
 var attributeObjDefinition = {};
 
+function buildUrl(resourceName, resourceId, extension) {
+  var url = "/" + resourceName;
+
+  if (resourceId) {
+    url = url + "/" + resourceId;
+  }
+
+  if (extension) {
+    url = url + "." + extension;
+  }
+};
+
 var JsModel = {
   attrs: {},
 
@@ -34,12 +46,46 @@ var JsModel = {
       });
     }
 
+    if (configuration.name) {
+      classObj.name = configuration.name;
+      instanceObj.name = configuration.name;
+    }
+
     return classObj;
+  },
+
+  fetchAll: function() {
+    return fetch(this.url())
+      .then(function(response) {
+        return response.json()
+      }
+    );
+  },
+
+  fetchOne: function(id) {
+    return fetch(this.url(id))
+      .then(function(response) {
+        return response.json()
+      }
+    );
+  },
+
+  url: function(id) {
+    buildUrl(this.name, id, _.findKey( this.attrs, 'extension' ));
   }
+
 };
 
 JsModel.$instance = {
   $class: JsModel,
 
-  attrs: {}
+  attrs: {},
+
+  primaryKey: function() {
+    return _.find(this.attrs, { primaryKey: true }) || this.attrs.id.value;
+  },
+
+  url: function() {
+    buildUrl(this.name, this.primaryKey(), _.findKey( this.attrs, 'extension' ));
+  }
 };
