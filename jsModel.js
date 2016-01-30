@@ -24,17 +24,20 @@
         attrObjValue = value;
       }
     });
+
+    return attrObject;
   }
 
   function createAssociation(properties) {
     var assocObject = _.extend({
+      fetch: function() {
 
+      }
     }, properties);
     var assocValue;
     Object.defineProperty(assocObject, 'associations',{
 
     });
-
     return assocObject;
   }
 
