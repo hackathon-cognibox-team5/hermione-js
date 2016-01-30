@@ -1,10 +1,19 @@
 var JsModel = {
+  create: function(properties, options) {
+    return _.extend({}, $this.instance);
+  },
+
   extend: function(configuration, instanceMethods, classMethods) {
-    _.extend({}, instance, classMethods);
-    _.extend();
+    var instanceObj = _.extend({}, this.$instance, classMethods);
+    var classObj = _.extend({}, this, classMethods);
+
+    instanceObj.$class = classObj;
+    classObj.$instance = instanceObj;
+
+    return classObj;
   }
 };
 
-var instance = {
-
+JsModel.$instance = {
+  $instance: JsModel
 };
