@@ -146,7 +146,7 @@
       return fetch(this.url())
         .then(function(response) {
           return response.json();
-        };
+        });
     },
 
     fetchOne: function(id) {
