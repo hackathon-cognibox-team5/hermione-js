@@ -1,0 +1,23 @@
+{
+  "name": "js-model",
+  "homepage": "https://github.com/hackathon-cognibox-team5/js-model",
+  "authors": [
+    "Ian Bussieres <ibussieres@cognibox.com>"
+  ],
+  "description": "Framework agnostic javascript model layer",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fetch": "^0.11.0",
+    "lodash": "^4.1.0"
+  }
+}
