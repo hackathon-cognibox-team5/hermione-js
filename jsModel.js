@@ -30,6 +30,12 @@
           if(valid !== undefined)
             self.errors[key] = valid;
         });
+      },
+      isValid: function(applyValidation){
+        // if applyValidation is set at false, skip validation process. Default is true
+        if(applyValidation !== false )
+          this.validate();
+        return _.isEmpty(this.errors);
       }
     }, properties);
 
@@ -153,4 +159,6 @@
   };
 
   window.JsModel = JsModel;
+  window.createAttribute = createAttribute;
+
 })();
