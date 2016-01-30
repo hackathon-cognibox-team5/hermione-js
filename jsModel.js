@@ -2,8 +2,8 @@
   var attributeObjDefinition = {};
   var modelMapping = {};
 
-  function buildUrl(resourceName, resourceId) {
-    var url = "/" + pluralize(resourceName);
+  function buildUrl(baseUrl, resourceName, resourceId) {
+    var url = baseUrl + pluralize(resourceName);
 
     if (resourceId) {
       url = url + "/" + resourceId;
@@ -103,6 +103,8 @@
     /*
       var User = Model.extend({
         name: "User"
+        baseUrl: "http://hackathon.cognibox.net/",
+        attrs: { "id": {}, "potato": {primary: true} }
       }, {
         fullName: function() { return this.firstName + this.lastName; }
       }, {
@@ -122,20 +124,27 @@
         });
       }
 
+      if(configuration.assocs) {
+        classObj.assocs = configuration.assocs;
+        instanceObj.assocs = configuration.assocs;
+      }
+      
+      if (configuration.baseUrl) {
+        classObj.baseUrl = configuration.baseUrl;
+        instanceObj.baseUrl = configuration.baseUrl;
+      }
+
       if (configuration.name) {
         classObj.name = configuration.name;
         instanceObj.name = configuration.name;
         modelMapping[configuration.name] = classObj;
       }
 
-      if(configuration.assocs) {
-        classObj.assocs = configuration.assocs;
-        instanceObj.assocs = configuration.assocs;
-      }
       return classObj;
     },
     fetchAll: function() {
-      return fetch(this.url())
+      return fetch(this.url(),
+        credentials: "same-origin"),
         .then(function(response) {
           return response.json();
         }
@@ -151,7 +160,7 @@
     },
 
     url: function(id) {
-      return buildUrl(this.name, id);
+      return buildUrl(this.baseUrl, this.name, id);
     }
   };
   JsModel.$instance = {
@@ -194,7 +203,7 @@
     },
 
     url: function() {
-      return buildUrl(this.name, this.primaryKey());
+      return buildUrl(this.baseUrl, this.name, this.primaryKey());
     }
   };
 
