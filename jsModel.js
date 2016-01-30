@@ -1,6 +1,16 @@
 (function() {
   var attributeObjDefinition = {};
 
+  function buildUrl(resourceName, resourceId) {
+    var url = "/" + pluralize(resourceName);
+
+    if (resourceId) {
+      url = url + "/" + resourceId;
+    }
+
+    return _.toLower(url);
+  };
+
   function createAttribute(properties) {
     var attrObject = _.extend({
       previousValue: undefined,
@@ -32,9 +42,8 @@
         if (!_.isEqual(attrObjValue, value)) {
           attrObject.isDirty = true;
         }
-
         attrObjValue = value;
-      }
+      };
     });
 
     return attrObject;
@@ -88,8 +97,6 @@
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
 
-      if (!configuration) configuration = {};
-
       if (configuration.attrs) {
         _.each(configuration.attrs, function(value, key) {
           classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
@@ -106,12 +113,43 @@
         instanceObj.associations = configuration.associations;
       }
       return classObj;
+    },
+
+    fetchAll: function() {
+      return fetch(this.url())
+        .then(function(response) {
+          return response.json()
+        }
+      );
+    },
+
+    fetchOne: function(id) {
+      return fetch(this.url(id))
+        .then(function(response) {
+          return response.json()
+        }
+      );
+    },
+
+    url: function(id) {
+      return buildUrl(this.name, id);
     }
   };
   JsModel.$instance = {
     $class: JsModel,
 
-    attrs: {}
+    fetch: function() {
+      return this.$class.fetchOne(this.attrs.id.value);
+    },
+
+    primaryKey: function() {
+      var primaryKey = _.findKey(this.attrs, { primary: true });
+      return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    url: function() {
+      return buildUrl(this.name, this.primaryKey());
+    }
   };
 
   window.JsModel = JsModel;
