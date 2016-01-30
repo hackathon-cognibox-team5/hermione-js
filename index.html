@@ -37,15 +37,17 @@
     </div>
   </div>
   <script type="text/javascript">
-    var User = JsModel.extend({
-      name: "user",
-      attrs: {
-        id: {},
-        firstName: {},
-        lastName: {},
-        message: {}
-      },
-    });
+  var User = JsModel.extend({
+    name: "User",
+    baseUrl: "http://hackathon.cognibox.net/",
+    attrs: { "id": {}, "patate": {primary: true} }
+  }, {
+    fullName: function() { return this.firstName + this.lastName; }
+  }, {
+    get: function(options) { return this.sync("read", null, options); }
+  });
+  var user = User.create({ id: 1, patate: 32 });
+  user.fetch();
   </script>
 </body>
 </html>
