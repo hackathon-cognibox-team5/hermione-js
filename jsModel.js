@@ -9,7 +9,7 @@
     }
 
     return _.toLower(url);
-  };
+  }
 
   function createAttribute(properties) {
     var attrObject = _.extend({
@@ -76,7 +76,7 @@
 
       obj.attrs = _.extend({}, this.attrs);
       _.each(obj.attrs, function(value, key) {
-        obj.attrs[key] = createAttribute(value);
+        obj.attrs[key] = createAttribute.call(this, value);
       });
 
       _.each(properties, function(value, key) {
