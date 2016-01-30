@@ -1,5 +1,6 @@
 (function() {
   var attributeObjDefinition = {};
+  var modelMapping = {};
 
   function buildUrl(resourceName, resourceId) {
     var url = "/" + pluralize(resourceName);
@@ -57,14 +58,19 @@
   }
 
   function createAssociation(properties) {
+    var self = this;
     var assocObject = _.extend({
       fetch: function() {
+        return fetch(this.url())
+          .then(function(response) {
+            return response.json();
+          }
+        );
+      },
+      url: function() {
+        return self.url() + '/' + modelMapping[this.model].name;
       }
     }, properties);
-    var assocValue;
-    Object.defineProperty(assocObject, 'associations',{
-
-    });
     return assocObject;
   }
 
@@ -78,6 +84,9 @@
       obj.attrs = _.extend({}, this.attrs);
       _.each(obj.attrs, function(value, key) {
         obj.attrs[key] = createAttribute.call(this, value);
+      });
+      _.each(obj.assocs, function(value, key) {
+        obj.assocs[key] = createAssociation.call(this, value);
       });
 
       _.each(properties, function(value, key) {
@@ -113,11 +122,12 @@
       if (configuration.name) {
         classObj.name = configuration.name;
         instanceObj.name = configuration.name;
+        modelMapping[configuration.name] = classObj;
       }
 
-      if(configuration.associations) {
-        classObj.associations = configuration.associations;
-        instanceObj.associations = configuration.associations;
+      if(configuration.assocs) {
+        classObj.assocs = configuration.assocs;
+        instanceObj.assocs = configuration.assocs;
       }
       return classObj;
     },
