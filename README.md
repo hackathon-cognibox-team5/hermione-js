@@ -1,5 +1,9 @@
 # Class methods
 
+### Dependencies
+
+* [Lodash](https://lodash.com/)
+
 #### Extend
 The extend method is used to create a new entity based on another one. By default you just extend the standard api.
 ```js
