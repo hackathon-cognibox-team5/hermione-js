@@ -1,5 +1,6 @@
 (function() {
   var attributeObjDefinition = {};
+  var modelMapping = {};
 
   function buildUrl(baseUrl, resourceName, resourceId) {
     var url = baseUrl + pluralize(resourceName);
@@ -13,6 +14,7 @@
 
   function createAttribute(properties) {
     var attrObject = _.extend({
+      $parent: this,
       previousValue: undefined,
       isDirty: false,
       setPreviousValue: function(value) {
@@ -20,18 +22,19 @@
         this.previousValue = value || this.value;
       },
       errors: {},
-      validate: function(){
+      validate: function() {
         var self = this;
         self.errors = {};
-        _.each(self.validations, function(validation, key){
+        _.each(self.validations, function(validation, key) {
           var singleValidation = {};
           singleValidation[key] = validation;
           var valid = validate.single(self.value, singleValidation);
           if(valid !== undefined)
             self.errors[key] = valid;
         });
+        return this.isValid(false);
       },
-      isValid: function(applyValidation){
+      isValid: function(applyValidation) {
         // if applyValidation is set at false, skip validation process. Default is true
         if(applyValidation !== false )
           this.validate();
@@ -56,14 +59,19 @@
   }
 
   function createAssociation(properties) {
+    var self = this;
     var assocObject = _.extend({
       fetch: function() {
+        return fetch(this.url())
+          .then(function(response) {
+            return response.json();
+          }
+        );
+      },
+      url: function() {
+        return self.url() + '/' + modelMapping[this.model].name;
       }
     }, properties);
-    var assocValue;
-    Object.defineProperty(assocObject, 'associations',{
-
-    });
     return assocObject;
   }
 
@@ -78,11 +86,16 @@
       _.each(obj.attrs, function(value, key) {
         obj.attrs[key] = createAttribute.call(this, value);
       });
+      _.each(obj.assocs, function(value, key) {
+        obj.assocs[key] = createAssociation.call(this, value);
+      });
 
       _.each(properties, function(value, key) {
         obj.attrs[key].value = value;
         obj.attrs[key].setPreviousValue();
       });
+
+      obj.initialize();
 
       return obj;
     },
@@ -99,8 +112,8 @@
       });
     */
     extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({}, this.$instance, classMethods);
-      var classObj = _.extend({}, this, classMethods);
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+      var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
@@ -111,11 +124,11 @@
         });
       }
 
-      if (configuration.associations) {
-        classObj.associations = configuration.associations;
-        instanceObj.associations = configuration.associations;
+      if(configuration.assocs) {
+        classObj.assocs = configuration.assocs;
+        instanceObj.assocs = configuration.assocs;
       }
-
+      
       if (configuration.baseUrl) {
         classObj.baseUrl = configuration.baseUrl;
         instanceObj.baseUrl = configuration.baseUrl;
@@ -124,11 +137,11 @@
       if (configuration.name) {
         classObj.name = configuration.name;
         instanceObj.name = configuration.name;
+        modelMapping[configuration.name] = classObj;
       }
 
       return classObj;
     },
-
     fetchAll: function() {
       return fetch(this.url(),
         credentials: "same-origin"),
@@ -152,14 +165,41 @@
   };
   JsModel.$instance = {
     $class: JsModel,
-
+    errors: {},
+    validate: function() {
+      var self = this;
+      self.errors = {};
+      _.each(self.attrs, function(attr, key) {
+        if(!attr.validate())
+          self.errors[key] = attr.errors;
+      });
+      return this.isValid(false);
+    },
+    isValid: function(applyValidation) {
+      // if applyValidation is set at false, skip validation process. Default is true
+      if(applyValidation !== false )
+        this.validate();
+      return _.isEmpty(this.errors);
+    },
     fetch: function() {
       return this.$class.fetchOne(this.attrs.id.value);
     },
 
+    initialize: function() {},
+
     primaryKey: function() {
       var primaryKey = _.findKey(this.attrs, { primary: true });
       return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    set: function(properties) {
+      var self = this;
+
+      _.chain(properties).pick(_.keys(this.attrs)).each(function(value, key) {
+        if (self.attrs[key]) {
+          self.attrs[key].value = value;
+        }
+      }).value();
     },
 
     url: function() {
