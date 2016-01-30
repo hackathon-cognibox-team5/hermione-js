@@ -14,6 +14,7 @@
 
   function createAttribute(properties) {
     var attrObject = _.extend({
+      $parent: this,
       previousValue: undefined,
       isDirty: false,
       setPreviousValue: function(value) {
@@ -107,8 +108,8 @@
       });
     */
     extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({}, this.$instance, classMethods);
-      var classObj = _.extend({}, this, classMethods);
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+      var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
@@ -173,9 +174,23 @@
       return this.$class.fetchOne(this.attrs.id.value);
     },
 
+    initialize: function() {},
+
+    parse: function(properties) { return properties; },
+
     primaryKey: function() {
       var primaryKey = _.findKey(this.attrs, { primary: true });
       return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    set: function(properties) {
+      var self = this;
+
+      _.chain(this.parse(properties)).pick(_.keys(this.attrs)).each(function(value, key) {
+        if (self.attrs[key]) {
+          self.attrs[key].value = value;
+        }
+      }).value();
     },
 
     url: function() {
