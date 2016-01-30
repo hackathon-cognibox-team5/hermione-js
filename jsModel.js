@@ -118,7 +118,7 @@
     fetchAll: function() {
       return fetch(this.url())
         .then(function(response) {
-          return response.json()
+          return response.json();
         }
       );
     },
@@ -126,7 +126,7 @@
     fetchOne: function(id) {
       return fetch(this.url(id))
         .then(function(response) {
-          return response.json()
+          return response.json();
         }
       );
     },
