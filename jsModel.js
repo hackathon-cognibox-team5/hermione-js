@@ -64,7 +64,10 @@ var JsModel = {
         classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
       });
     }
-
+    if (configuration.name) {
+      classObj.name = configuration.name;
+      instanceObj.name = configuration.name;
+    }
     return classObj;
   }
 };
