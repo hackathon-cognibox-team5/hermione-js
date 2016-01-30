@@ -94,6 +94,8 @@
         obj.attrs[key].setPreviousValue();
       });
 
+      obj.initialize();
+
       return obj;
     },
 
@@ -173,9 +175,21 @@
       return this.$class.fetchOne(this.attrs.id.value);
     },
 
+    initialize: function() {},
+
     primaryKey: function() {
       var primaryKey = _.findKey(this.attrs, { primary: true });
       return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    set: function(properties) {
+      var self = this;
+
+      _.chain(properties).pick(_.keys(this.attrs)).each(function(value, key) {
+        if (self.attrs[key]) {
+          self.attrs[key].value = value;
+        }
+      }).value();
     },
 
     url: function() {
