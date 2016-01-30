@@ -1,124 +1,129 @@
-var attributeObjDefinition = {};
+(function() {
+  var attributeObjDefinition = {};
 
-function buildUrl(resourceName, resourceId) {
-  var url = "/" + pluralize(resourceName);
+  function buildUrl(resourceName, resourceId) {
+    var url = "/" + pluralize(resourceName);
 
-  if (resourceId) {
-    url = url + "/" + resourceId;
+    if (resourceId) {
+      url = url + "/" + resourceId;
+    }
+
+    return _.toLower(url);
+  };
+
+  function createAttribute(properties) {
+    var attrObject = _.extend({
+      previousValue: undefined,
+      isDirty: false,
+      setPreviousValue: function(value) {
+        this.isDirty = false;
+        this.previousValue = value || this.value;
+      }
+    }, properties);
+
+    var attrObjValue;
+    Object.defineProperty(attrObject, 'value', {
+      get: function() {
+        return attrObjValue;
+      },
+      set: function(value) {
+        if (!_.isEqual(attrObjValue, value)) {
+          attrObject.isDirty = true;
+        }
+        attrObjValue = value;
+      };
+    });
+
+    return attrObject;
   }
 
-  return _.toLower(url);
-};
+  var JsModel = {
+    attrs: {},
 
-function createAttribute(properties) {
-  var attrObject = _.extend({
-    previousValue: undefined,
-    setPreviousValue: function(value) {
-      this.previousValue = value || this.value;
-    }
-  }, properties);
+    // Model.create({ id: 1 })
+    create: function(properties, options) {
+      var obj = _.extend({}, this.$instance);
 
-  var attrObjValue;
-  Object.defineProperty(attrObject, 'value', {
-    get: function() {
-      return attrObjValue;
-    },
-    set: function(value) {
-      attrObjValue = value;
-    }
-  });
-
-  return attrObject;
-};
-
-var JsModel = {
-  attrs: {},
-
-  // Model.create({ id: 1 })
-  create: function(properties, options) {
-    var obj = _.extend({}, this.$instance);
-
-    obj.attrs = _.extend({}, this.attrs);
-    _.each(obj.attrs, function(value, key) {
-      obj.attrs[key] = createAttribute(value);
-    });
-
-    _.each(properties, function(value, key) {
-      obj.attrs[key].value = value;
-      obj.attrs[key].setPreviousValue();
-    });
-
-    return obj;
-  },
-
-  /*
-    var User = Model.extend({
-      name: "User"
-    }, {
-      fullName: function() { return this.firstName + this.lastName; }
-    }, {
-      get: function(options) { return this.sync("read", null, options); }
-    });
-  */
-  extend: function(configuration, instanceMethods, classMethods) {
-    var instanceObj = _.extend({}, this.$instance, classMethods);
-    var classObj = _.extend({}, this, classMethods);
-
-    instanceObj.$class = classObj;
-    classObj.$instance = instanceObj;
-
-    if (!configuration) configuration = {};
-
-    if (configuration.attrs) {
-      _.each(configuration.attrs, function(value, key) {
-        classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+      obj.attrs = _.extend({}, this.attrs);
+      _.each(obj.attrs, function(value, key) {
+        obj.attrs[key] = createAttribute(value);
       });
-    }
 
-    if (configuration.name) {
-      classObj.name = configuration.name;
-      instanceObj.name = configuration.name;
-    }
+      _.each(properties, function(value, key) {
+        obj.attrs[key].value = value;
+        obj.attrs[key].setPreviousValue();
+      });
 
-    return classObj;
-  },
+      return obj;
+    },
 
-  fetchAll: function() {
-    return fetch(this.url())
-      .then(function(response) {
-        return response.json()
+    /*
+      var User = Model.extend({
+        name: "User"
+      }, {
+        fullName: function() { return this.firstName + this.lastName; }
+      }, {
+        get: function(options) { return this.sync("read", null, options); }
+      });
+    */
+    extend: function(configuration, instanceMethods, classMethods) {
+      var instanceObj = _.extend({}, this.$instance, classMethods);
+      var classObj = _.extend({}, this, classMethods);
+
+      instanceObj.$class = classObj;
+      classObj.$instance = instanceObj;
+
+      if (configuration.attrs) {
+        _.each(configuration.attrs, function(value, key) {
+          classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+        });
       }
-    );
-  },
 
-  fetchOne: function(id) {
-    return fetch(this.url(id))
-      .then(function(response) {
-        return response.json()
+      if (configuration.name) {
+        classObj.name = configuration.name;
+        instanceObj.name = configuration.name;
       }
-    );
-  },
 
-  url: function(id) {
-    return buildUrl(this.name, id);
-  }
-};
+      return classObj;
+    },
 
-JsModel.$instance = {
-  $class: JsModel,
+    fetchAll: function() {
+      return fetch(this.url())
+        .then(function(response) {
+          return response.json()
+        }
+      );
+    },
 
-  attrs: {},
+    fetchOne: function(id) {
+      return fetch(this.url(id))
+        .then(function(response) {
+          return response.json()
+        }
+      );
+    },
 
-  fetch: function() {
-    return this.$class.fetchOne(this.attrs.id.value);
-  },
+    url: function(id) {
+      return buildUrl(this.name, id);
+    }
+  };
 
-  primaryKey: function() {
-    var primaryKey = _.findKey(this.attrs, { primary: true });
-    return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
-  },
+  JsModel.$instance = {
+    $class: JsModel,
 
-  url: function() {
-    return buildUrl(this.name, this.primaryKey());
-  }
-};
+    fetch: function() {
+      return this.$class.fetchOne(this.attrs.id.value);
+    },
+
+    primaryKey: function() {
+      var primaryKey = _.findKey(this.attrs, { primary: true });
+      return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    url: function() {
+      return buildUrl(this.name, this.primaryKey());
+    }
+  };
+
+  window.JsModel = JsModel;
+})();
