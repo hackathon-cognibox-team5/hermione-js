@@ -49,9 +49,12 @@
       },
       set: function(value) {
         if (!_.isEqual(attrObjValue, value)) {
-          attrObject.isDirty = true;
+          this.isDirty = true;
         }
         attrObjValue = value;
+
+        this.validate();
+        return attrObjValue;
       }
     });
 
@@ -84,10 +87,10 @@
 
       obj.attrs = _.extend({}, this.attrs);
       _.each(obj.attrs, function(value, key) {
-        obj.attrs[key] = createAttribute.call(this, value);
+        obj.attrs[key] = createAttribute.call(obj, value);
       });
       _.each(obj.assocs, function(value, key) {
-        obj.assocs[key] = createAssociation.call(this, value);
+        obj.assocs[key] = createAssociation.call(obj, value);
       });
 
       _.each(properties, function(value, key) {
@@ -206,6 +209,5 @@
   };
 
   window.JsModel = JsModel;
-  window.createAttribute = createAttribute;
 
 })();
