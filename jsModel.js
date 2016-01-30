@@ -43,7 +43,7 @@
           attrObject.isDirty = true;
         }
         attrObjValue = value;
-      };
+      }
     });
 
     return attrObject;
