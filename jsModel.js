@@ -4,6 +4,7 @@ var attributeObjDefinition = {};
 var JsModel = {
   attrs: {},
 
+  // Model.create({ id: 1 })
   create: function(properties, options) {
     var obj = _.extend({}, this.$instance);
 
@@ -19,6 +20,15 @@ var JsModel = {
     return obj;
   },
 
+  /*
+    var User = Model.extend({
+      name: "User"
+    }, {
+      fullName: function() { return this.firstName + this.lastName; }
+    }, {
+      get: function(options) { return this.sync("read", null, options); }
+    });
+  */
   extend: function(configuration, instanceMethods, classMethods) {
     var instanceObj = _.extend({}, this.$instance, classMethods);
     var classObj = _.extend({}, this, classMethods);
