@@ -22,10 +22,10 @@
         this.previousValue = value || this.value;
       },
       errors: {},
-      validate: function(){
+      validate: function() {
         var self = this;
         self.errors = {};
-        _.each(self.validations, function(validation, key){
+        _.each(self.validations, function(validation, key) {
           var singleValidation = {};
           singleValidation[key] = validation;
           var valid = validate.single(self.value, singleValidation);
@@ -34,7 +34,7 @@
         });
         return this.isValid(false);
       },
-      isValid: function(applyValidation){
+      isValid: function(applyValidation) {
         // if applyValidation is set at false, skip validation process. Default is true
         if(applyValidation !== false )
           this.validate();
@@ -157,16 +157,16 @@
   JsModel.$instance = {
     $class: JsModel,
     errors: {},
-    validate: function(){
+    validate: function() {
       var self = this;
-      self.errors = {}
-      _.each(self.attrs, function(attr, key){
+      self.errors = {};
+      _.each(self.attrs, function(attr, key) {
         if(!attr.validate())
           self.errors[key] = attr.errors;
       });
       return this.isValid(false);
     },
-    isValid: function(applyValidation){
+    isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
       if(applyValidation !== false )
         this.validate();
