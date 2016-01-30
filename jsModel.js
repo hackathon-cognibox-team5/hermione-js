@@ -30,6 +30,7 @@
           if(valid !== undefined)
             self.errors[key] = valid;
         });
+        return this.isValid(false);
       },
       isValid: function(applyValidation){
         // if applyValidation is set at false, skip validation process. Default is true
@@ -120,7 +121,6 @@
       }
       return classObj;
     },
-
     fetchAll: function() {
       return fetch(this.url())
         .then(function(response) {
@@ -143,7 +143,22 @@
   };
   JsModel.$instance = {
     $class: JsModel,
-
+    errors: {},
+    validate: function(){
+      var self = this;
+      self.errors = {}
+      _.each(self.attrs, function(attr, key){
+        if(!attr.validate())
+          self.errors[key] = attr.errors;
+      });
+      return this.isValid(false);
+    },
+    isValid: function(applyValidation){
+      // if applyValidation is set at false, skip validation process. Default is true
+      if(applyValidation !== false )
+        this.validate();
+      return _.isEmpty(this.errors);
+    },
     fetch: function() {
       return this.$class.fetchOne(this.attrs.id.value);
     },
