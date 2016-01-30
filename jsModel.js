@@ -42,34 +42,31 @@ var JsModel = {
   },
 
   /*
-  var User = Model.extend({
-  name: "User"
-}, {
-fullName: function() { return this.firstName + this.lastName; }
-}, {
-get: function(options) { return this.sync("read", null, options); }
-});
-*/
-extend: function(configuration, instanceMethods, classMethods) {
-  var instanceObj = _.extend({}, this.$instance, classMethods);
-  var classObj = _.extend({}, this, classMethods);
-
-  instanceObj.$class = classObj;
-  classObj.$instance = instanceObj;
-
-  if (!configuration) configuration = {};
-
-  if (configuration.attrs) {
-    _.each(configuration.attrs, function(value, key) {
-      classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+    var User = Model.extend({
+      name: "User"
+    }, {
+      fullName: function() { return this.firstName + this.lastName; }
+    }, {
+      get: function(options) { return this.sync("read", null, options); }
     });
+  */
+  extend: function(configuration, instanceMethods, classMethods) {
+    var instanceObj = _.extend({}, this.$instance, classMethods);
+    var classObj = _.extend({}, this, classMethods);
+
+    instanceObj.$class = classObj;
+    classObj.$instance = instanceObj;
+
+    if (!configuration) configuration = {};
+
+    if (configuration.attrs) {
+      _.each(configuration.attrs, function(value, key) {
+        classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+      });
+    }
+
+    return classObj;
   }
-  if (configuration.name) {
-    classObj.name = configuration.name;
-    instanceObj.name = configuration.name;
-  }
-  return classObj;
-}
 };
 
 JsModel.$instance = {
