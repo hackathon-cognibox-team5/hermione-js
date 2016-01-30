@@ -14,6 +14,7 @@
 
   function createAttribute(properties) {
     var attrObject = _.extend({
+      $parent: this,
       previousValue: undefined,
       isDirty: false,
       setPreviousValue: function(value) {
@@ -109,8 +110,8 @@
       });
     */
     extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({}, this.$instance, classMethods);
-      var classObj = _.extend({}, this, classMethods);
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+      var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
