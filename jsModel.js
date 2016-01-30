@@ -156,7 +156,7 @@
     errors: {},
     validate: function(){
       var self = this;
-      self.errors = {}
+      self.errors = {};
       _.each(self.attrs, function(attr, key){
         if(!attr.validate())
           self.errors[key] = attr.errors;
