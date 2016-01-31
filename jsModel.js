@@ -43,7 +43,7 @@
           this.validate();
         return _.isEmpty(this.errors);
       }
-    }, properties);
+    }, this.$class.$attrObj, properties);
 
     var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
@@ -169,9 +169,11 @@
     extend: function(classMethods, instanceMethods, attributeMethods) {
       var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
+      var attrObj = _.extend({}, this.$attrObj, attributeMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
+      classObj.$attrObj = attrObj;
 
       _.each(classObj.attrs, function(value, key) {
         classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
