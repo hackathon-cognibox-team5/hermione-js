@@ -91,7 +91,15 @@
       }, this.$instance);
 
       _.each(obj.$class.attrs, function(value, key) {
-        obj.attrs[key] = createAttribute.call(obj, value);
+        var attr = createAttribute.call(obj, value);
+        Object.defineProperty(obj.attrs, key, {
+          get: function() {
+            return attr;
+          },
+          set: function(value) {
+            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+          }
+        });
       });
       _.each(obj.$class.assocs, function(value, key) {
         obj.assocs[key] = createAssociation.call(obj, value);
