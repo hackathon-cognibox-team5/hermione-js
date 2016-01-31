@@ -29,6 +29,8 @@ var User = Api.extend({
   // instance methods
 }, {
   // class methods
+}, {
+  // attributes methods
 });
 ```
 
