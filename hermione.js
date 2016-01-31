@@ -21,16 +21,16 @@
         this.isDirty = false;
         this.previousValue = value || this.value;
       },
-      errors: {},
+      validationErrors: {},
       validate: function() {
         var self = this;
-        self.errors = {};
+        self.validationErrors = {};
         _.each(self.validations, function(validation, key) {
           var singleValidation = {};
           singleValidation[key] = validation;
           var valid = validate.single(self.value, singleValidation);
           if(valid !== undefined)
-            self.errors[key] = valid;
+            self.validationErrors[key] = valid;
         });
         return this.isValid(false);
       },
@@ -41,7 +41,7 @@
         // if applyValidation is set at false, skip validation process. Default is true
         if(applyValidation !== false )
           this.validate();
-        return _.isEmpty(this.errors);
+        return _.isEmpty(this.validationErrors);
       }
     }, this.$class.$attrObj, properties);
 
@@ -304,13 +304,13 @@
       return this.$class.delete(this.primaryKeyValue());
     },
 
-    errors: function() {
+    validationErrors: function() {
       var errors = {};
       var self = this;
       _.each(this.$class.attrs, function(attrObj, attrName) {
         var obj = self.attrs[attrName];
-        if(!_.isEmpty(obj.errors))
-          errors[attrName] = obj.errors;
+        if(!_.isEmpty(obj.validationErrors))
+          errors[attrName] = obj.validationErrors;
       });
       return errors;
     },
@@ -328,7 +328,7 @@
       // if applyValidation is set at false, skip validation process. Default is true
       if (applyValidation !== false )
         this.validate();
-      return _.isEmpty(this.errors());
+      return _.isEmpty(this.validationErrors());
     },
 
     fetch: function() {
