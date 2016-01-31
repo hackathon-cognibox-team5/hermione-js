@@ -157,6 +157,10 @@
       );
     },
 
+    httpParse: function(data, direction) {
+      return data;
+    },
+
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
