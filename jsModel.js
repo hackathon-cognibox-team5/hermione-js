@@ -250,7 +250,8 @@
     },
     put: function(id, data) {
       return fetch(this.url(id), {
-        method: 'put'headers: {
+        method: 'put',
+        headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
@@ -323,13 +324,22 @@
     },
 
     save: function() {
+      var self = this;
       var attributes = this.changedAttributes();
-      if (!_.isEmpty(attributes) {
-        if (_.isEmpty(this.primaryKey())) {
-          this.$class.post(attributes);
-        } else {
-          this.$class.put(this.primaryKey(), attributes);
-        }
+      if (_.isEmpty(this.primaryKey())) {
+        var data = {};
+        _.each(this.$class.attrs, function(attr, key) {
+          debugger;
+          data[key] = self.attrs[key].value;
+        });
+
+        this.$class.post(data);
+      } else if (!_.isEmpty(attributes)) {
+        var data = {};
+        _.each(this.$class.attrs, function(attr) {
+          data[attr.name].value = this.attrs[attr.name].value;
+        });
+        this.$class.put(this.primaryKey(), data);
       }
     },
 
