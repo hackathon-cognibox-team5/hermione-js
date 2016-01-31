@@ -90,10 +90,10 @@
         assocs: {}
       }, this.$instance);
 
-      _.each(this.attrs, function(value, key) {
+      _.each(obj.attrs, function(value, key) {
         obj.attrs[key] = createAttribute.call(obj, value);
       });
-      _.each(this.assocs, function(value, key) {
+      _.each(obj.assocs, function(value, key) {
         obj.assocs[key] = createAssociation.call(obj, value);
       });
 
