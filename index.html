@@ -53,7 +53,8 @@
     });
     Post.fetchAll().then(function(models) {
       _.each(models, function(model) {
-        $('#content').append(
+        if (model.attrs.published.value){
+          $('#content').append(
           '<article>'+
           '<h2>' +
             model.attrs.title.value +
@@ -63,6 +64,7 @@
           '</p>' +
           '<a href="' + model.url() + '">' + 'Read more' + '</a>' +
           '</article>');
+        }
       });
     }).catch(function(err) {
       $('#content').empty();
