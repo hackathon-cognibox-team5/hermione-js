@@ -235,12 +235,46 @@
       return data;
     },
 
+    /* useless but can be overwitten */
+    parse: function(properties) {
+      return properties;
+    },
+    post: function(data) {
+      fetch(this.url(), {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: this.httpParse(data)
+      });
+    },
+    put: function(id, data) {
+      return fetch(this.url(id), {
+        method: 'put',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: this.httpParse(data)
+      });
+    },
+
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
   };
   JsModel.$instance = {
     $class: JsModel,
+
+    changedAttributes: function() {
+      var changed = {};
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(attrObj.hasChanged())
+          changed[attrName] = attrObj.value;
+      });
+      return changed;
+    },
 
     cleanAttributes: function() {
       var self = this;
@@ -270,7 +304,7 @@
       return this.$class.delete(this.primaryKeyValue());
     },
 
-    errors: function(){
+    errors: function() {
       var errors = {};
       var self = this;
       _.each(this.$class.attrs, function(attrObj, attrName) {
@@ -324,6 +358,26 @@
 
     primaryKeyValue: function() {
       return this.attrs[this.primaryKey()].value;
+    },
+
+    save: function() {
+      var self = this;
+      var attributes = this.changedAttributes();
+      var data = {};
+
+      if (_.isEmpty(this.primaryKeyValue())) {
+        _.each(this.$class.attrs, function(attr, key) {
+          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
+        });
+
+        this.$class.post(data);
+      } else if (!_.isEmpty(attributes)) {
+        _.each(this.$class.attrs, function(attr) {
+          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
+        });
+
+        this.$class.put(this.primaryKey(), data);
+      }
     },
 
     set: function(properties) {
