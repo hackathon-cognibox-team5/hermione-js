@@ -266,7 +266,6 @@
   };
   JsModel.$instance = {
     $class: JsModel,
-    errors: {},
 
     changedAttributes: function() {
       var changed = {};
@@ -364,15 +363,16 @@
     save: function() {
       var self = this;
       var attributes = this.changedAttributes();
-      if (_.isEmpty(this.primaryKey())) {
-        var data = {};
+      var data = {};
+      if (_.isEmpty(this.primaryKeyValue())) {
         _.each(this.$class.attrs, function(attr, key) {
           data[key] = self.attrs[key].value;
         });
 
+        console.log(data);
+
         this.$class.post(data);
       } else if (!_.isEmpty(attributes)) {
-        var data = {};
         _.each(this.$class.attrs, function(attr) {
           data[attr.name].value = this.attrs[attr.name].value;
         });
