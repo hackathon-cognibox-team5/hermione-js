@@ -187,11 +187,7 @@
     },
     delete: function(id){
       return fetch(this.url(id),{method: 'delete'})
-        .then(function(response) {
-          return response.json();
-        }).then(function(json){
-          return json;
-          }).catch(function (e){
+          .catch(function (e){
             console.error(e);
             });
     },
