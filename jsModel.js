@@ -53,7 +53,9 @@
         }
         attrObjValue = value;
 
-        this.validate();
+        if(this.autoValidate !== false)
+          this.validate();
+
         return attrObjValue;
       }
     });
@@ -179,8 +181,6 @@
 
       _.each(self.attrs, function(attr) {
         attr.validate();
-        //if(!attr.validate())
-          //self.errors[key] = attr.errors;
       });
       return this.isValid(false);
     },
