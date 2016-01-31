@@ -364,6 +364,7 @@
       var self = this;
       var attributes = this.changedAttributes();
       var data = {};
+
       if (_.isEmpty(this.primaryKeyValue())) {
         _.each(this.$class.attrs, function(attr, key) {
           if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
@@ -372,8 +373,9 @@
         this.$class.post(data);
       } else if (!_.isEmpty(attributes)) {
         _.each(this.$class.attrs, function(attr) {
-          data[attr.name].value = this.attrs[attr.name].value;
+          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
         });
+
         this.$class.put(this.primaryKey(), data);
       }
     },
