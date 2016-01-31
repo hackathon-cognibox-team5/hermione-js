@@ -49,10 +49,14 @@
       },
       set: function(value) {
         if (!_.isEqual(attrObjValue, value)) {
-          attrObject.isDirty = true;
+          this.isDirty = true;
         }
 
         attrObjValue = this.parse ? this.parse(value) : value;
+        if(this.$parent.$class.autoValidate !== false)
+          this.validate();
+
+        return attrObjValue;
       }
     });
 
@@ -81,14 +85,16 @@
 
     // Model.create({ id: 1 })
     create: function(properties, options) {
-      var obj = _.extend({}, this.$instance);
+      var obj = _.extend({
+        attrs: {},
+        assocs: {}
+      }, this.$instance);
 
-      obj.attrs = _.extend({}, this.attrs);
-      _.each(obj.attrs, function(value, key) {
-        obj.attrs[key] = createAttribute.call(this, value);
+      _.each(obj.$class.attrs, function(value, key) {
+        obj.attrs[key] = createAttribute.call(obj, value);
       });
-      _.each(obj.assocs, function(value, key) {
-        obj.assocs[key] = createAssociation.call(this, value);
+      _.each(obj.$class.assocs, function(value, key) {
+        obj.assocs[key] = createAssociation.call(obj, value);
       });
 
       _.each(properties, function(value, key) {
@@ -112,25 +118,19 @@
         get: function(options) { return this.sync("read", null, options); }
       });
     */
-    extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+    extend: function(classMethods, instanceMethods) {
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
 
-      if (configuration.attrs) {
-        _.each(configuration.attrs, function(value, key) {
-          classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
-        });
-      }
+      _.each(classObj.attrs, function(value, key) {
+        classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+      });
 
-      var configAttrsForExtend = _.pick(configuration, ["assocs", "baseUrl", "name"]);
-      _.extend(classObj, configAttrsForExtend);
-      _.extend(instanceObj, configAttrsForExtend);
-
-      if (configuration.name) {
-        modelMapping[configuration.name] = classObj;
+      if (classObj.name) {
+        modelMapping[classObj.name] = classObj;
       }
 
       return classObj;
@@ -158,14 +158,20 @@
   JsModel.$instance = {
     $class: JsModel,
 
-    errors: {},
+    errors: function(){
+      var errors={};
+      _.each(this.attrs, function(attrObj, attrName){
+        if(!_.isEmpty(attrObj.errors))
+          errors[attrName] = attrObj.errors;
+      });
+      return errors;
+    },
 
     validate: function() {
       var self = this;
-      self.errors = {};
-      _.each(self.attrs, function(attr, key) {
-        if(!attr.validate())
-          self.errors[key] = attr.errors;
+
+      _.each(self.attrs, function(attr) {
+        attr.validate();
       });
       return this.isValid(false);
     },
@@ -174,7 +180,7 @@
       // if applyValidation is set at false, skip validation process. Default is true
       if(applyValidation !== false )
         this.validate();
-      return _.isEmpty(this.errors);
+      return _.isEmpty(this.errors());
     },
 
     fetch: function() {
@@ -199,11 +205,10 @@
     },
 
     url: function() {
-      return buildUrl(this.baseUrl, this.name, this.primaryKey());
+      return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKey());
     }
   };
 
   window.JsModel = JsModel;
-  window.createAttribute = createAttribute;
 
 })();
