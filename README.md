@@ -180,17 +180,37 @@ user.isValid(); // check if all attributes are valid
 Validation is automatically refreshed on value change:
 ```js
 user.attrs.name.value = "Do";
-user.errors;
-//Output: is too short (minimum is 3 characters)
+user.validationErrors();
+//Output: name: Object, 0: "is too short (minimum is 3 characters)"
 user.isValid(); // check if all attributes are valid
+user.attrs.name.validationErrors; //Output: 0: "is too short (minimum is 3 characters)"
 ```
 
 Validation is automatically refreshed on value change:
 ```js
-user.attrs.name.value = "Do";
-user.errors;
-//Output: is too short (minimum is 3 characters)
+user.attrs.name.value = "Doe";
+user.validationErrors();
+//Output: {}
 user.isValid(); // check if all attributes are valid
+```
+
+Manual validations
+```js
+var User = JsModel.extend({
+      name: "User",
+      baseUrl: "http://your.website.net/",
+      autoValidate: false,
+      attrs: {  id: {primary: true, validations: {presence: true}},
+                name: {validations: {presence: true, length: {minimum: 3}}}
+             }
+    });
+var user = User.create({id: 1, name: "John"});
+user.attrs.name.value = "Do";
+user.validationErrors();
+//Output: {}
+user.validate();
+user.validationErrors();
+//Output: name: Object, 0: "is too short (minimum is 3 characters)"
 ```
 
 #### save
