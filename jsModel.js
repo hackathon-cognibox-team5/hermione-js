@@ -142,7 +142,7 @@
         });
       });
 
-      _.each(_.pick(properties, _.keys(obj.attrs)), function(value, key) {
+      _.each(_.pick(properties, _.keys(obj.$class.attrs)), function(value, key) {
         obj.attrs[key].value = value;
         obj.attrs[key].setPreviousValue();
       });
@@ -292,7 +292,7 @@
     },
 
     fetch: function() {
-      return this.$class.fetchOne(this.attrs.id.value);
+      return this.$class.fetchOne(this.primaryKey());
     },
 
     initialize: function() {},
