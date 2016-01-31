@@ -42,7 +42,7 @@
       }
     }, properties);
 
-    var attrObjValue;
+    var attrObjValue = properties.value; //default value
     Object.defineProperty(attrObject, 'value', {
       get: function() {
         return attrObjValue;
@@ -51,9 +51,9 @@
         if (!_.isEqual(attrObjValue, value)) {
           this.isDirty = true;
         }
-        attrObjValue = value;
 
-        if(this.autoValidate !== false)
+        attrObjValue = this.parse ? this.parse(value) : value;
+        if(this.$parent.$class.autoValidate !== false)
           this.validate();
 
         return attrObjValue;
@@ -90,10 +90,10 @@
         assocs: {}
       }, this.$instance);
 
-      _.each(obj.attrs, function(value, key) {
+      _.each(obj.$class.attrs, function(value, key) {
         obj.attrs[key] = createAttribute.call(obj, value);
       });
-      _.each(obj.assocs, function(value, key) {
+      _.each(obj.$class.assocs, function(value, key) {
         obj.assocs[key] = createAssociation.call(obj, value);
       });
 
@@ -135,6 +135,7 @@
 
       return classObj;
     },
+
     fetchAll: function() {
       return fetch(this.url())
         .then(function(response) {
@@ -156,6 +157,7 @@
   };
   JsModel.$instance = {
     $class: JsModel,
+
     errors: function(){
       var errors={};
       _.each(this.attrs, function(attrObj, attrName){
@@ -164,6 +166,7 @@
       });
       return errors;
     },
+
     validate: function() {
       var self = this;
 
@@ -172,12 +175,14 @@
       });
       return this.isValid(false);
     },
+
     isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
       if(applyValidation !== false )
         this.validate();
       return _.isEmpty(this.errors());
     },
+
     fetch: function() {
       return this.$class.fetchOne(this.attrs.id.value);
     },
