@@ -30,7 +30,7 @@ var user = User.create({ id: 5, username: "jean" });
 The extend method is used to create a new entity based on another one. By default you just extend
 the standard api.
 ```js
-var User = Api.extend({
+var User = Hermione.extend({
   // class methods
 }, {
   // instance methods
@@ -67,7 +67,7 @@ Possible `attribute` definition:
   simple object or an array of objects
 - `model`: string, the associated model name.
 ```js
-var User = Api.extend({
+var User = Hermione.extend({
     associations: {
       groups: { type: "many", model: "group" }
     }
@@ -82,7 +82,7 @@ Possible `attribute` definition:
 - `type`: string
 - `validation`: set of validation criterion
 ```js
-var User = Api.extend({
+var User = Hermione.extend({
     attributes: {
       id: { primary: true, type: "integer" },
       username: { type: "string" }
@@ -93,7 +93,7 @@ var User = Api.extend({
 #### Name
 The `name` attribute is the model name. It will be used for relations, building the url and other stuff like that
 ```js
-var User = Api.extend({
+var User = Hermione.extend({
   name: "user"
 });
 ```
@@ -103,7 +103,7 @@ Set of functions used for validations.
 - The first argument of each function will be the attribute to validate
 - The second argument is the value passed in the attribute definition
 ```js
-var User = Api.extend({
+var User = Hermione.extend({
     attributes: {
       id: { primary: true, type: "integer" },
       username: { type: "string", validations: { max: 150 } }
