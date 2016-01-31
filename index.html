@@ -93,6 +93,13 @@
       });
       var post = Post.create({"id": 7});
       post.fetch();
+      var blankPost = Post.create({});
+      $("#titleInput").change(function() {
+        blankPost.set({title: $(this).val()});
+      });
+      $("#bodyInput").change(function() {
+        blankPost.attrs.body.value = $(this).val();
+      });
   </script>
 </body>
 </html>
