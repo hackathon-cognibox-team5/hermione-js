@@ -13,7 +13,7 @@
   <script type="text/javascript" src="./bower_components/lodash/dist/lodash.js"></script>
   <script type="text/javascript" src="./bower_components/pluralize/pluralize.js"></script>
   <script type="text/javascript" src="./bower_components/validate/validate.js"></script>
-  <script type="text/javascript" src="./jsModel.js"></script>
+  <script type="text/javascript" src="./Hermione.js"></script>
 </head>
 <body>
   <header class="navbar navbar-static-top navbar-default">
@@ -39,8 +39,7 @@
     </div>
   </div>
   <script type="text/javascript">
-  (function() {
-    var Post = JsModel.extend({
+    var Post = Hermione.extend({
       name: "Post",
       baseUrl: "http://hackathon.cognibox.com/",
       attrs: {
@@ -54,29 +53,31 @@
     }, {
       get: function(options) { return this.sync("read", null, options); }
     });
-    var post = Post.create({ id: 3});
-    post.fetch().then(function (model){
+    Post.fetchAll().then(function(models) {
+      _.each(models, function(model) {
+          $('#content').append(
+          '<article>'+
+          '<h2>' +
+            model.attrs.title.value +
+          '</h2>' +
+          '<p>' +
+            model.attrs.body.value  +
+          '</p>' +
+          '<a href="' + model.url() + '">' + 'Read more' + '</a>' +
+          '</article>');
+      });
+    }).catch(function(err) {
+      $('#content').empty();
       $('#content').append(
-        '<h1>Articles</h1>' +
-        '<article>'+
-        '<h2>' +
-          model.attrs.title.value +
-        '</h2>' +
-        '<p>' +
-          model.attrs.body.value  +
-        '</p>' +
+        '<div class="row">' +
+        '<div class="alert alert-danger alert-dismissible" role="alert">' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+        '<strong>'+ 'Error: ' +'</strong>' + err.message +
+        '</div>' +
         '</div>');
-      }).catch(function (err) {
-        $('#content').empty();
-        $('#content').append(
-          '<div class="row">' +
-          '<div class="alert alert-danger alert-dismissible" role="alert">' +
-          '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
-          '<strong>'+ 'Error: ' +'</strong>' + err.message +
-          '</div>' +
-          '</div>');
-        });
-  }());
+      });
+      var post = Post.create({"id": 7});
+      post.fetch();
   </script>
 </body>
 </html>
