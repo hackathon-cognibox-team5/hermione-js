@@ -43,7 +43,7 @@
           this.validate();
         return _.isEmpty(this.errors);
       }
-    }, properties);
+    }, this.$class.$attrObj, properties);
 
     var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
@@ -118,6 +118,8 @@
         assocs: {}
       }, this.$instance);
 
+      properties = obj.parse(properties);
+
       _.each(obj.$class.attrs, function(value, key) {
         var attr = createAttribute.call(obj, value);
         Object.defineProperty(obj.attrs, key, {
@@ -167,9 +169,11 @@
     extend: function(classMethods, instanceMethods, attributeMethods) {
       var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
+      var attrObj = _.extend({}, this.$attrObj, attributeMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
+      classObj.$attrObj = attrObj;
 
       _.each(classObj.attrs, function(value, key) {
         classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
@@ -238,6 +242,13 @@
   JsModel.$instance = {
     $class: JsModel,
 
+    cleanAttributes: function() {
+      var self = this;
+      _.each(this.$class.attrs, function(attr, key) {
+        self.attrs[key].setPreviousValue();
+      });
+    },
+
     computeAssocs: function(data) {
       var self = this;
 
@@ -261,9 +272,11 @@
 
     errors: function(){
       var errors = {};
-      _.each(this.attrs, function(attrObj, attrName) {
-        if(!_.isEmpty(attrObj.errors))
-          errors[attrName] = attrObj.errors;
+      var self = this;
+      _.each(this.$class.attrs, function(attrObj, attrName) {
+        var obj = self.attrs[attrName];
+        if(!_.isEmpty(obj.errors))
+          errors[attrName] = obj.errors;
       });
       return errors;
     },
@@ -271,8 +284,8 @@
     validate: function() {
       var self = this;
 
-      _.each(self.attrs, function(attr) {
-        attr.validate();
+      _.each(self.$class.attrs, function(attr, attrName) {
+        self.attrs[attrName].validate();
       });
       return this.isValid(false);
     },
@@ -293,6 +306,7 @@
           json = self.$class.httpParse(json);
           json = self.parse(json);
           self.set(json);
+          self.cleanAttributes();
           return self;
         });
     },
@@ -305,7 +319,7 @@
     },
 
     primaryKey: function() {
-      return _.findKey(this.attrs, { primary: true }) || "id";
+      return _.findKey(this.$class.attrs, { primary: true }) || "id";
     },
 
     primaryKeyValue: function() {
