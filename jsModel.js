@@ -68,11 +68,37 @@
 
   function createAssociation(properties) {
     var self = this;
+    var assocModel = modelMapping[self.model];
     var assocObject = _.extend({
       fetch: function() {
+        var self = this;
         return fetch(this.url())
           .then(function(response) {
             return response.json();
+          }).then(function(json) {
+            json = assocModel.httpParse(json);
+            var elements;
+
+            if (_.isArray(json)) {
+              _.each(json, function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json = elements;
+            }
+            else if (_.isArray(json.data)) {
+              _.each(_.isArray(json.data), function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json.data = elements;
+            }
+            else if (_.isArray(json[pluralize(self.name)])) {
+              _.each(_.isArray(json[pluralize(self.name)]), function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json[pluralize(self.name)] = elements;
+            }
+
+            return json;
           });
       },
       url: function() {
@@ -169,8 +195,9 @@
       var self = this;
       return fetch(this.url())
         .then(function(response) {
-          return self.httpParse(response.json());
+          return response.json();
         }).then(function(json) {
+          json = self.httpParse(json);
           var elements;
 
           if (_.isArray(json)) {
@@ -185,11 +212,11 @@
             });
             json.data = elements;
           }
-          else if (_.isArray(json[pluralize(self.configuration.name)])) {
-            _.each(_.isArray(json[pluralize(self.configuration.name)]), function(element) {
+          else if (_.isArray(json[pluralize(self.name)])) {
+            _.each(_.isArray(json[pluralize(self.name)]), function(element) {
               elements.push(self.create(element));
             });
-            json[pluralize(self.configuration.name)] = elements;
+            json[pluralize(self.name)] = elements;
           }
 
           return json;
@@ -199,8 +226,10 @@
       var self = this;
       return fetch(this.url(id))
         .then(function(response) {
-          return self.create(self.httpParse(response.json()));
-        }
+          return response.json();
+        }.then(function(json) {
+          return self.create(self.httpParse(json));
+        })
       );
     },
     httpParse: function(data, direction) {
