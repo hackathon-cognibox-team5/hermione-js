@@ -40,13 +40,13 @@
   var User = JsModel.extend({
     name: "User",
     baseUrl: "http://hackathon.cognibox.com/",
-    attrs: { "id": {}, "patate": {primary: true} }
+    attrs: { "id": {}, "firstName": {}, "lastName": {}, "message": {} }
   }, {
     fullName: function() { return this.firstName + this.lastName; }
   }, {
     get: function(options) { return this.sync("read", null, options); }
   });
-  var user = User.create({ id: 1, patate: 32 });
+  var user = User.create({ id: 1});
   user.fetch();
   </script>
 </body>

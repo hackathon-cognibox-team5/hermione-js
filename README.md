@@ -133,6 +133,7 @@ user.attrs.username.isDirty;
 
 #### isValid
 Configuration
+
 Use same validation pattern in: https://validatejs.org/#validators
 ```js
 var User = JsModel.extend({
@@ -163,6 +164,13 @@ user.errors;
 user.isValid(); // check if all attributes are valid
 ```
 
+Validation is automatically refreshed on value change:
+```js
+user.attrs.name.value = "Do";
+user.errors;
+//Output: is too short (minimum is 3 characters)
+user.isValid(); // check if all attributes are valid
+```
 
 #### save
 ```js
