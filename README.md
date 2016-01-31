@@ -79,13 +79,13 @@ var User = Api.extend({
 Attributes is the model set of attributes.
 Possible `attribute` definition:
 - `primary`: boolean, only one attribute can be set to primary. If no attributes is set to primary, the id attributes is set to primary.
-- `type`: string
-- `validation`: set of validation criterion
+- `default`: Object
+- `validations`: set of validation criterion, see https://validatejs.org/#validators for available validations patterns.
 ```js
 var User = Api.extend({
     attributes: {
-      id: { primary: true, type: "integer" },
-      username: { type: "string" }
+      id: { primary: true },
+      username: { default: "admin" }
     }
 });
 ```
@@ -105,8 +105,8 @@ Set of functions used for validations.
 ```js
 var User = Api.extend({
     attributes: {
-      id: { primary: true, type: "integer" },
-      username: { type: "string", validations: { max: 150 } }
+      id: { primary: true },
+      username: { default: "admin", validations: { length: {maximum: 150 }} }
     },
     validationFunctions: {
       max: function(attributeKey, validationValue) { return this.attributes[attributeKey] <= validationValue; }
@@ -158,7 +158,6 @@ user.attrs.username.isDirty;
 ```
 
 #### isValid
-Use same validation pattern in: https://validatejs.org/#validators
 ```js
 var User = JsModel.extend({
       name: "User",
