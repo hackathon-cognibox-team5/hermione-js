@@ -42,7 +42,7 @@
       }
     }, properties);
 
-    var attrObjValue;
+    var attrObjValue = properties.value; //default value
     Object.defineProperty(attrObject, 'value', {
       get: function() {
         return attrObjValue;
@@ -51,7 +51,8 @@
         if (!_.isEqual(attrObjValue, value)) {
           attrObject.isDirty = true;
         }
-        attrObjValue = value;
+
+        attrObjValue = this.parse ? this.parse(value) : value;
       }
     });
 
@@ -124,24 +125,17 @@
         });
       }
 
-      if(configuration.assocs) {
-        classObj.assocs = configuration.assocs;
-        instanceObj.assocs = configuration.assocs;
-      }
-
-      if (configuration.baseUrl) {
-        classObj.baseUrl = configuration.baseUrl;
-        instanceObj.baseUrl = configuration.baseUrl;
-      }
+      var configAttrsForExtend = _.pick(configuration, ["assocs", "baseUrl", "name"]);
+      _.extend(classObj, configAttrsForExtend);
+      _.extend(instanceObj, configAttrsForExtend);
 
       if (configuration.name) {
-        classObj.name = configuration.name;
-        instanceObj.name = configuration.name;
         modelMapping[configuration.name] = classObj;
       }
 
       return classObj;
     },
+
     fetchAll: function() {
       return fetch(this.url())
         .then(function(response) {
