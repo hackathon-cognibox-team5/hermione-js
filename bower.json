@@ -8,10 +8,10 @@
     "Mathieu St-Yves <mathieu.st-yves@hotmail.com>"
   ],
   "description": "Framework agnostic javascript model layer built with attribute functions in mind.",
-  "main": "",
+  "main": "hermione.js",
   "moduleType": [],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
