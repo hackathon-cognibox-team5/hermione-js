@@ -222,22 +222,15 @@
           return json;
         });
     },
+
     fetchOne: function(id) {
-      var self = this;
-      return fetch(this.url(id))
-        .then(function(response) {
-          return response.json();
-        }).then(function(json) {
-          return self.create(self.httpParse(json));
-        });
+      return this.create({ id: id }).fetch();
     },
+
     httpParse: function(data, direction) {
       return data;
     },
-    /* useless but can be overwitten */
-    parse: function(properties) {
-      return properties;
-    },
+
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
@@ -263,7 +256,7 @@
     },
 
     delete: function(){
-      return this.$class.delete(this.primaryKey());
+      return this.$class.delete(this.primaryKeyValue());
     },
 
     errors: function(){
@@ -292,30 +285,47 @@
     },
 
     fetch: function() {
-      return this.$class.fetchOne(this.primaryKey());
+      var self = this;
+      return fetch(this.url(this.id))
+        .then(function(response) {
+          return response.json();
+        }).then(function(json) {
+          json = self.$class.httpParse(json);
+          json = self.parse(json);
+          self.set(json);
+          return self;
+        });
     },
 
     initialize: function() {},
 
+    /* useless but can be overwitten */
+    parse: function(properties) {
+      return properties;
+    },
+
     primaryKey: function() {
-      var primaryKey = _.findKey(this.attrs, { primary: true });
-      return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+      return _.findKey(this.attrs, { primary: true }) || "id";
+    },
+
+    primaryKeyValue: function() {
+      return this.attrs[this.primaryKey()].value;
     },
 
     set: function(properties) {
       var self = this;
 
-      _.chain(properties).pick(_.keys(this.attrs)).each(function(value, key) {
+      _.chain(properties).pick(_.keys(this.$class.attrs)).each(function(value, key) {
         if (self.attrs[key]) {
           self.attrs[key].value = value;
         }
       }).value();
 
-      obj.computeAssocs(properties);
+      self.computeAssocs(properties);
     },
 
     url: function() {
-      return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKey());
+      return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKeyValue());
     }
   };
 
