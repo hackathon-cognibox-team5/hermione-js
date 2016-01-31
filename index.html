@@ -44,16 +44,14 @@
       "id":  {},
       "title": {},
       "body": {},
-      "published": {},
-      "createdAt": {},
-      "updatedAt":{}
+      "published": {}
     }
   }, {
     // Add functions here
   }, {
     get: function(options) { return this.sync("read", null, options); }
   });
-  var post = Post.create({ id: 1});
+  var post = Post.create({ id: 2});
   post.fetch();
   </script>
 </body>
