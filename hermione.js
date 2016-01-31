@@ -76,7 +76,7 @@
           .then(function(response) {
             return response.json();
           }).then(function(json) {
-            json = assocModel.httpParse(json);
+            json = assocModel.httpParse(json,"get");
             var elements;
 
             if (_.isArray(json)) {
@@ -201,7 +201,7 @@
         .then(function(response) {
           return response.json();
         }).then(function(json) {
-          json = self.httpParse(json);
+          json = self.httpParse(json, "get");
           var elements = [];
 
           if (_.isArray(json)) {
@@ -231,8 +231,12 @@
       return this.create({ id: id }).fetch();
     },
 
-    httpParse: function(data, direction) {
-      return data;
+    httpParse: function(data, method) {
+      if(_.includes(["put", "post"],method))
+        return JSON.stringify(data);
+      else {
+        return data;
+      }
     },
 
     /* useless but can be overwitten */
@@ -246,7 +250,7 @@
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: this.httpParse(data)
+        body: this.httpParse(data, "post")
       });
     },
     put: function(id, data) {
@@ -256,7 +260,7 @@
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: this.httpParse(data)
+        body: this.httpParse(data, "put")
       });
     },
 
@@ -269,9 +273,10 @@
 
     changedAttributes: function() {
       var changed = {};
-      _.each(this.attrs, function(attrObj, attrName) {
-        if(attrObj.hasChanged())
-          changed[attrName] = attrObj.value;
+      var self = this;
+      _.each(this.$class.attrs, function(attrObj, attrName) {
+        if(self.attrs[attrName].hasChanged())
+          changed[attrName] = self.attrs[attrName].value;
       });
       return changed;
     },
@@ -337,7 +342,7 @@
         .then(function(response) {
           return response.json();
         }).then(function(json) {
-          json = self.$class.httpParse(json);
+          json = self.$class.httpParse(json, "get");
           json = self.parse(json);
           self.set(json);
           self.cleanAttributes();
@@ -365,18 +370,20 @@
       var attributes = this.changedAttributes();
       var data = {};
 
-      if (_.isEmpty(this.primaryKeyValue())) {
+      // New record
+      if (!this.primaryKeyValue()) {
         _.each(this.$class.attrs, function(attr, key) {
           if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
         });
 
         this.$class.post(data);
+        // Update record
       } else if (!_.isEmpty(attributes)) {
-        _.each(this.$class.attrs, function(attr) {
-          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
+        _.each(this.$class.attrs, function(attr, key) {
+          if (self.attrs[key].value !== undefined && key !== self.primaryKey()) data[key] = self.attrs[key].value;
         });
 
-        this.$class.put(this.primaryKey(), data);
+        this.$class.put(this.primaryKeyValue(), data);
       }
     },
 
