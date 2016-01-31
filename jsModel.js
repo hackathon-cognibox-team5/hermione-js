@@ -242,6 +242,13 @@
   JsModel.$instance = {
     $class: JsModel,
 
+    cleanAttributes: function() {
+      var self = this;
+      _.each(this.$class.attrs, function(attr, key) {
+        self.attrs[key].setPreviousValue();
+      });
+    },
+
     computeAssocs: function(data) {
       var self = this;
 
@@ -265,9 +272,11 @@
 
     errors: function(){
       var errors = {};
-      _.each(this.attrs, function(attrObj, attrName) {
-        if(!_.isEmpty(attrObj.errors))
-          errors[attrName] = attrObj.errors;
+      var self = this;
+      _.each(this.$class.attrs, function(attrObj, attrName) {
+        var obj = self.attrs[attrName];
+        if(!_.isEmpty(obj.errors))
+          errors[attrName] = obj.errors;
       });
       return errors;
     },
@@ -275,8 +284,8 @@
     validate: function() {
       var self = this;
 
-      _.each(self.attrs, function(attr) {
-        attr.validate();
+      _.each(self.$class.attrs, function(attr, attrName) {
+        self.attrs[attrName].validate();
       });
       return this.isValid(false);
     },
@@ -297,6 +306,7 @@
           json = self.$class.httpParse(json);
           json = self.parse(json);
           self.set(json);
+          self.cleanAttributes();
           return self;
         });
     },
@@ -309,7 +319,7 @@
     },
 
     primaryKey: function() {
-      return _.findKey(this.attrs, { primary: true }) || "id";
+      return _.findKey(this.$class.attrs, { primary: true }) || "id";
     },
 
     primaryKeyValue: function() {
