@@ -157,7 +157,9 @@
   };
   JsModel.$instance = {
     $class: JsModel,
+
     errors: {},
+
     validate: function() {
       var self = this;
       self.errors = {};
@@ -167,12 +169,14 @@
       });
       return this.isValid(false);
     },
+
     isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
       if(applyValidation !== false )
         this.validate();
       return _.isEmpty(this.errors);
     },
+
     fetch: function() {
       return this.$class.fetchOne(this.attrs.id.value);
     },
