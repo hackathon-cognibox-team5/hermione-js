@@ -9,6 +9,15 @@ Everybody had a classmate that knew everything about anything, much like [Hermio
 
 Hermione.js maps a REST API to an object data model. The main difference with other model layer libraries such as [js-model](https://github.com/benpickles/js-model) or [Backbone.Model](http://backbonejs.org/#Model) is the handling of attributes as objects with their own functions defined lower in this README.
 
+
+## Installation
+
+Available on [Bower](http://bower.io) as **hermione**.
+
+```sh
+$ bower install hermione
+```
+
 ## Class methods
 
 #### create
@@ -70,13 +79,13 @@ var User = Api.extend({
 Attributes is the model set of attributes.
 Possible `attribute` definition:
 - `primary`: boolean, only one attribute can be set to primary. If no attributes is set to primary, the id attributes is set to primary.
-- `default`: Object
+- `type`: string
 - `validation`: set of validation criterion
 ```js
 var User = Api.extend({
     attributes: {
-      id: { primary: true },
-      username: { default: "admin" }
+      id: { primary: true, type: "integer" },
+      username: { type: "string" }
     }
 });
 ```
@@ -96,8 +105,8 @@ Set of functions used for validations.
 ```js
 var User = Api.extend({
     attributes: {
-      id: { primary: true },
-      username: { default: "admin", validations: { max: 150 } }
+      id: { primary: true, type: "integer" },
+      username: { type: "string", validations: { max: 150 } }
     },
     validationFunctions: {
       max: function(attributeKey, validationValue) { return this.attributes[attributeKey] <= validationValue; }
@@ -174,37 +183,17 @@ user.isValid(); // check if all attributes are valid
 Validation is automatically refreshed on value change:
 ```js
 user.attrs.name.value = "Do";
-user.validationErrors();
-//Output: name: Object, 0: "is too short (minimum is 3 characters)"
+user.errors;
+//Output: is too short (minimum is 3 characters)
 user.isValid(); // check if all attributes are valid
-user.attrs.name.validationErrors; //Output: 0: "is too short (minimum is 3 characters)"
 ```
 
 Validation is automatically refreshed on value change:
 ```js
-user.attrs.name.value = "Doe";
-user.validationErrors();
-//Output: {}
-user.isValid(); // check if all attributes are valid
-```
-
-Manual validations
-```js
-var User = JsModel.extend({
-      name: "User",
-      baseUrl: "http://your.website.net/",
-      autoValidate: false,
-      attrs: {  id: {primary: true, validations: {presence: true}},
-                name: {validations: {presence: true, length: {minimum: 3}}}
-             }
-    });
-var user = User.create({id: 1, name: "John"});
 user.attrs.name.value = "Do";
-user.validationErrors();
-//Output: {}
-user.validate();
-user.validationErrors();
-//Output: name: Object, 0: "is too short (minimum is 3 characters)"
+user.errors;
+//Output: is too short (minimum is 3 characters)
+user.isValid(); // check if all attributes are valid
 ```
 
 #### save
