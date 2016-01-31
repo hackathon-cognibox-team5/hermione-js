@@ -151,7 +151,7 @@
       var self = this;
       return fetch(this.url())
         .then(function(response) {
-          return response.json()
+          return self.httpParse(response.json())
         }).then(function(json) {
           var elements;
 
@@ -181,7 +181,7 @@
       var self = this;
       return fetch(this.url(id))
         .then(function(response) {
-          return self.create(response.json());
+          return self.create(self.httpParse(response.json()));
         }
       );
     },
