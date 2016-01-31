@@ -53,17 +53,19 @@
       get: function(options) { return this.sync("read", null, options); }
     });
     var post = Post.create({ id: 3});
-    post.fetch().then(function (model){
-      $('#content').append(
-        '<h1>Articles</h1>' +
-        '<article>'+
-        '<h2>' +
-          model.attrs.title.value +
-        '</h2>' +
-        '<p>' +
-          model.attrs.body.value  +
-        '</p>' +
-        '</div>');
+    Post.fetchAll().then(function (models){
+      _.each(models, function(model) {
+        $('#content').append(
+          '<article>'+
+          '<h2>' +
+            model.attrs.title.value +
+          '</h2>' +
+          '<p>' +
+            model.attrs.body.value  +
+          '</p>' +
+          '<a href="' + model.url() + '">' + 'Read more' + '</a>' +
+          '</article>');
+      });
       }).catch(function (err) {
         $('#content').empty();
         $('#content').append(
