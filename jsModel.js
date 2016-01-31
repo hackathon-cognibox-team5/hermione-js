@@ -148,20 +148,47 @@
     },
 
     fetchAll: function() {
+      var self = this;
       return fetch(this.url())
         .then(function(response) {
-          return response.json();
+          return response.json()
+        }).then(function(json) {
+          var elements;
+
+          if (_.isArray(json)) {
+            _.each(json, function(element) {
+              elements.push(self.create(element));
+            });
+            json = elements;
+          }
+          else if (_.isArray(json['data'])) {
+            _.each(_.isArray(json['data']), function(element) {
+              elements.push(self.create(element));
+            });
+            json['data'] = elements;
+          }
+          else if (_.isArray(json[pluralize(self.configuration.name)])) {
+            _.each(_.isArray(json[pluralize(self.configuration.name)]), function(element) {
+              elements.push(self.create(element));
+            });
+            json[pluralize(self.configuration.name)] = elements;
+          }
+
+          return json;
         });
     },
-
     fetchOne: function(id) {
+      var self = this;
       return fetch(this.url(id))
         .then(function(response) {
-          return response.json();
+          return self.create(response.json());
         }
       );
     },
-
+    /* useless but can be overwitten */
+    parse: function(properties) {
+      return properties;
+    },
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
