@@ -147,16 +147,14 @@
       return classObj;
     },
     delete: function(id){
-      return fetch(this.url(id),{
-	                 method: 'delete'})
+      return fetch(this.url(id),{method: 'delete'})
         .then(function(response) {
           return response.json();
-        }
-      ).then(function(json){
-        return json;
-      }).catch(function (e){
-        console.error(e);
-      });
+        }).then(function(json){
+          return json;
+          }).catch(function (e){
+            console.error(e);
+            });
     },
     fetchAll: function() {
       var self = this;
