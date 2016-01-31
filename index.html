@@ -5,6 +5,8 @@
   <title>Hello World!</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <script type="text/javascript" src="./bower_components/fetch/fetch.js"></script>
   <script type="text/javascript" src="./bower_components/lodash/dist/lodash.js"></script>
   <script type="text/javascript" src="./bower_components/pluralize/pluralize.js"></script>
@@ -30,29 +32,49 @@
     </div>
   </header>
   <div class="container">
-    <div class="col-md-4d">
+    <div class="col-md-8" id="content">
     </div>
-    <div class="col-md-8">
-      <h1>Hello world!</h1>
     </div>
   </div>
   <script type="text/javascript">
-  var Post = JsModel.extend({
-    name: "Post",
-    baseUrl: "http://hackathon.cognibox.com/",
-    attrs: {
-      "id":  {},
-      "title": {},
-      "body": {},
-      "published": {}
-    }
-  }, {
-    // Add functions here
-  }, {
-    get: function(options) { return this.sync("read", null, options); }
-  });
-  var post = Post.create({ id: 2});
-  post.fetch();
+  (function() {
+    var Post = JsModel.extend({
+      name: "Post",
+      baseUrl: "http://hackathon.cognibox.com/",
+      attrs: {
+        "id":  {},
+        "title": {},
+        "body": {},
+        "published": {}
+      }
+    }, {
+      // Add functions here
+    }, {
+      get: function(options) { return this.sync("read", null, options); }
+    });
+    var post = Post.create({ id: 3});
+    post.fetch().then(function (model){
+      $('#content').append(
+        '<h1>Articles</h1>' +
+        '<article>'+
+        '<h2>' +
+          model.attrs.title.value +
+        '</h2>' +
+        '<p>' +
+          model.attrs.body.value  +
+        '</p>' +
+        '</div>');
+      }).catch(function (err) {
+        $('#content').empty();
+        $('#content').append(
+          '<div class="row">' +
+          '<div class="alert alert-danger alert-dismissible" role="alert">' +
+          '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+          '<strong>'+ 'Error: ' +'</strong>' + err.message +
+          '</div>' +
+          '</div>');
+        });
+  }());
   </script>
 </body>
 </html>
