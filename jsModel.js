@@ -227,10 +227,9 @@
       return fetch(this.url(id))
         .then(function(response) {
           return response.json();
-        }.then(function(json) {
+        }).then(function(json) {
           return self.create(self.httpParse(json));
-        })
-      );
+        });
     },
     httpParse: function(data, direction) {
       return data;
