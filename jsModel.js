@@ -45,7 +45,7 @@
       }
     }, properties);
 
-    var attrObjValue = properties.value; //default value
+    var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
       get: function() {
         return attrObjValue;
@@ -73,8 +73,7 @@
         return fetch(this.url())
           .then(function(response) {
             return response.json();
-          }
-        );
+          });
       },
       url: function() {
         return self.url() + '/' + modelMapping[this.model].name;
@@ -104,8 +103,17 @@
           }
         });
       });
+
       _.each(obj.$class.assocs, function(value, key) {
-        obj.assocs[key] = createAssociation.call(obj, value);
+        var attr = createAssociation.call(obj, value);
+        Object.defineProperty(obj.assocs, key, {
+          get: function() {
+            return attr;
+          },
+          set: function(value) {
+            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+          }
+        });
       });
 
       _.each(properties, function(value, key) {
@@ -113,7 +121,8 @@
         obj.attrs[key].setPreviousValue();
       });
 
-      obj.initialize();
+      obj.initialize(properties);
+      obj.computeAssocs(properties);
 
       return obj;
     },
@@ -129,7 +138,7 @@
         get: function(options) { return this.sync("read", null, options); }
       });
     */
-    extend: function(classMethods, instanceMethods) {
+    extend: function(classMethods, instanceMethods, attributeMethods) {
       var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
 
@@ -160,7 +169,7 @@
       var self = this;
       return fetch(this.url())
         .then(function(response) {
-          return self.httpParse(response.json())
+          return self.httpParse(response.json());
         }).then(function(json) {
           var elements;
 
@@ -170,11 +179,11 @@
             });
             json = elements;
           }
-          else if (_.isArray(json['data'])) {
-            _.each(_.isArray(json['data']), function(element) {
+          else if (_.isArray(json.data)) {
+            _.each(_.isArray(json.data), function(element) {
               elements.push(self.create(element));
             });
-            json['data'] = elements;
+            json.data = elements;
           }
           else if (_.isArray(json[pluralize(self.configuration.name)])) {
             _.each(_.isArray(json[pluralize(self.configuration.name)]), function(element) {
@@ -208,13 +217,30 @@
   JsModel.$instance = {
     $class: JsModel,
 
+    computeAssocs: function(data) {
+      var self = this;
+
+      var assocs = _.pick(data, _.keys(this.assocs));
+      _.each(assocs, function(value, key) {
+        var assocModel = modelMapping[self.assocs[key].model];
+        if (self.assocs[key].type === "many") {
+          _.each(value, function(v, k) {
+            value[k] = assocModel.create(v);
+          });
+          self.assocs[key].value = value;
+        } else if (self.assocs[key].type === "one") {
+          self.assocs[key].value = assocModel.create(value);
+        }
+      });
+    },
+
     delete: function(){
       return this.$class.delete(this.primaryKey());
     },
 
     errors: function(){
-      var errors={};
-      _.each(this.attrs, function(attrObj, attrName){
+      var errors = {};
+      _.each(this.attrs, function(attrObj, attrName) {
         if(!_.isEmpty(attrObj.errors))
           errors[attrName] = attrObj.errors;
       });
@@ -232,7 +258,7 @@
 
     isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
-      if(applyValidation !== false )
+      if (applyValidation !== false )
         this.validate();
       return _.isEmpty(this.errors());
     },
@@ -256,6 +282,8 @@
           self.attrs[key].value = value;
         }
       }).value();
+
+      obj.computeAssocs(properties);
     },
 
     url: function() {
