@@ -118,6 +118,8 @@
         assocs: {}
       }, this.$instance);
 
+      properties = obj.parse(properties);
+
       _.each(obj.$class.attrs, function(value, key) {
         var attr = createAttribute.call(obj, value);
         Object.defineProperty(obj.attrs, key, {
