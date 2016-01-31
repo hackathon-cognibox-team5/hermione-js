@@ -31,9 +31,9 @@ The extend method is used to create a new entity based on another one. By defaul
 the standard api.
 ```js
 var User = Api.extend({
-  // instance methods
-}, {
   // class methods
+}, {
+  // instance methods
 }, {
   // attributes methods
 });
