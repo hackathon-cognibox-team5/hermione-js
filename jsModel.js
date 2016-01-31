@@ -15,7 +15,7 @@
   function createAttribute(properties) {
     var attrObject = _.extend({
       $parent: this,
-      previousValue: undefined,
+      previousValue: properties.value,
       isDirty: false,
       setPreviousValue: function(value) {
         this.isDirty = false;
@@ -33,6 +33,9 @@
             self.errors[key] = valid;
         });
         return this.isValid(false);
+      },
+      hasChanged: function() {
+        return this.value !== this.previousValue;
       },
       isValid: function(applyValidation) {
         // if applyValidation is set at false, skip validation process. Default is true
