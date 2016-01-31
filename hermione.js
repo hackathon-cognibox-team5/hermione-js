@@ -15,7 +15,7 @@
   function createAttribute(properties) {
     var attrObject = _.extend({
       $parent: this,
-      previousValue: properties.value,
+      previousValue: properties.default,
       isDirty: false,
       setPreviousValue: function(value) {
         this.isDirty = false;
