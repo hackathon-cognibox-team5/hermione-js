@@ -127,11 +127,37 @@ user.attrs.username.isDirty;
 ```
 
 #### isValid
+Configurations
+Use same validation pattern in: https://validatejs.org/#validators
+```js
+var User = JsModel.extend({
+      name: "User",
+      baseUrl: "http://your.website.net/",
+      attrs: {  id: {primary: true, validations: {presence: true}},
+                name: {validations: {presence: true, length: {minimum: 3}}}
+             }
+    }, {
+      fullName: function() { return this.firstName + this.lastName; }
+    }, {
+      get: function(options) { return this.sync("read", null, options); }
+    });
+```
+
 Can be set to automatically run validation on attributes changes
 ```js
-user.attrs.username.isValid(); // check if the current attribute is valid
+var user = User.create({id: 1, name: "John"});
+user.attrs.name.isValid(); // check if the current attribute is valid
 user.isValid(); // check if all attributes are valid
 ```
+
+Validation is automatically refreshed on value change:
+```js
+user.attrs.name.value = "Do";
+user.errors;
+//Output: is too short (minimum is 3 characters)
+user.isValid(); // check if all attributes are valid
+```
+
 
 #### save
 ```js
