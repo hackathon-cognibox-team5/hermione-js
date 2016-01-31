@@ -1,4 +1,19 @@
-# Class methods
+
+# Hermione.js
+
+## About
+
+Everybody had a classmate that knew everything about anything.
+
+## Purpose
+
+Everyone who read Harry Potter, knows that Hermione knows. Well, Hermione(.js) just does that.
+It knows. While your project is the hero (Harry), Hermione.js brings the knowledge to the
+table. It takes care of the of mapping a REST API to an object data model. Every attributes are
+objects in their own rights complete with their own functions and other data members. Below is
+pretty much the API.
+
+## Class methods
 
 #### create
 Create an object for this resource.
@@ -7,17 +22,21 @@ var user = User.create({ id: 5, username: "jean" });
 ```
 
 #### extend
-The extend method is used to create a new entity based on another one. By default you just extend the standard api.
+The extend method is used to create a new entity based on another one. By default you just extend
+the standard api.
 ```js
 var User = Api.extend({
   // instance methods
 }, {
   // class methods
+}, {
+  // attributes methods
 });
 ```
 
 #### fetchAll
-Returns all objects of the resource as an array of objects. If meta-data is provided in the json reponse, this is kept alongside the array of objects.
+Returns all objects of the resource as an array of objects. If meta-data is provided in the json
+reponse, this is kept alongside the array of objects.
 ```js
 User.fetchAll();
 ```
@@ -34,12 +53,13 @@ Returns the full url to the resource.
 User.url(id);
 ```
 
-# Class configuration
+## Class configuration
 
 #### Associations
 Set of associations.
 Possible `attribute` definition:
-- `type`: ``["many", "one"]`` are the possible values. Used to know if the associations will be a simple object or an array of objects
+- `type`: ``["many", "one"]`` are the possible values. Used to know if the associations will be a
+  simple object or an array of objects
 - `model`: string, the associated model name.
 ```js
 var User = Api.extend({
@@ -50,6 +70,7 @@ var User = Api.extend({
 ```
 
 #### Attributes
+
 Attributes is the model set of attributes.
 Possible `attribute` definition:
 - `primary`: boolean, only one attribute can be set to primary. If no attributes is set to primary, the id attributes is set to primary.
