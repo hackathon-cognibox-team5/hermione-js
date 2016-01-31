@@ -58,9 +58,9 @@
       name: "Post",
       baseUrl: "http://hackathon.cognibox.com/",
       attrs: {
-        "id":  {},
-        "title": {},
-        "body": {},
+        "id":  {primary: true},
+        "title": {validations: {presence: true, length: {minimum: 10}}},
+        "body": {validations: {presence: true, length: {minimum: 30}}},
         "published": {}
       }
     }, {
@@ -96,9 +96,11 @@
       var blankPost = Post.create({});
       $("#titleInput").change(function() {
         blankPost.set({title: $(this).val()});
+        $("#submit").prop("disabled", !blankPost.isValid());
       });
       $("#bodyInput").change(function() {
         blankPost.attrs.body.value = $(this).val();
+        $("#submit").prop("disabled", !blankPost.isValid());
       });
   </script>
 </body>
