@@ -3,15 +3,11 @@
 
 ## About
 
-Everybody had a classmate that knew everything about anything.
+Everybody had a classmate that knew everything about anything, much like [Hermione](http://harrypotter.wikia.com/wiki/Hermione_Granger) from the Harry Potter series. While your project is the main character, Hermione.js serves the knowledge.
 
 ## Purpose
 
-Everyone who read Harry Potter, knows that Hermione knows. Well, Hermione(.js) just does that.
-It knows. While your project is the hero (Harry), Hermione.js brings the knowledge to the
-table. It takes care of the of mapping a REST API to an object data model. Every attributes are
-objects in their own rights complete with their own functions and other data members. Below is
-pretty much the API.
+Hermione.js maps a REST API to an object data model. The main difference with other model layer libraries such as [js-model](https://github.com/benpickles/js-model) or [Backbone.Model](http://backbonejs.org/#Model) is the handling of attributes as objects with their own functions defined lower in this README.
 
 ## Class methods
 
@@ -153,8 +149,6 @@ user.attrs.username.isDirty;
 ```
 
 #### isValid
-Configuration
-
 Use same validation pattern in: https://validatejs.org/#validators
 ```js
 var User = JsModel.extend({
