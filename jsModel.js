@@ -238,6 +238,25 @@
     parse: function(properties) {
       return properties;
     },
+    post: function(data) {
+      fetch(this.url(), {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: this.httpParse(data)
+      });
+    },
+    put: function(id, data) {
+      return fetch(this.url(id), {
+        method: 'put'headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: this.httpParse(data)
+      });
+    },
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
@@ -247,7 +266,12 @@
     errors: {},
 
     changedAttributes: function() {
-
+      var changed = {};
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(attrObj.hasChanged())
+          changed[attrName] = attrObj.value;
+      });
+      return changed;
     },
 
     computeAssocs: function(data) {
@@ -298,12 +322,14 @@
       return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
     },
 
-    // send only changed data
     save: function() {
-      if (this.attrs.id) {
-
-      } else {
-
+      var attributes = this.changedAttributes();
+      if (!_.isEmpty(attributes) {
+        if (_.isEmpty(this.primaryKey())) {
+          this.$class.post(attributes);
+        } else {
+          this.$class.put(this.primaryKey(), attributes);
+        }
       }
     },
 
