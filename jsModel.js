@@ -160,7 +160,7 @@
       var self = this;
       return fetch(this.url())
         .then(function(response) {
-          return self.httpParse(response.json())
+          return self.httpParse(response.json());
         }).then(function(json) {
           var elements;
 
@@ -170,11 +170,11 @@
             });
             json = elements;
           }
-          else if (_.isArray(json['data'])) {
-            _.each(_.isArray(json['data']), function(element) {
+          else if (_.isArray(json.data)) {
+            _.each(_.isArray(json.data), function(element) {
               elements.push(self.create(element));
             });
-            json['data'] = elements;
+            json.data = elements;
           }
           else if (_.isArray(json[pluralize(self.configuration.name)])) {
             _.each(_.isArray(json[pluralize(self.configuration.name)]), function(element) {
