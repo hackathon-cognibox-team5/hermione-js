@@ -164,23 +164,20 @@
   JsModel.$instance = {
     $class: JsModel,
     errors: {},
-    validate: function() {
-      var self = this;
-      self.errors = {};
-      _.each(self.attrs, function(attr, key) {
-        if(!attr.validate())
-          self.errors[key] = attr.errors;
-      });
-      return this.isValid(false);
+
+    changedAttributes: function() {
+
     },
+
+    fetch: function() {
+      return this.$class.fetchOne(this.attrs.id.value);
+    },
+
     isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
       if(applyValidation !== false )
         this.validate();
       return _.isEmpty(this.errors);
-    },
-    fetch: function() {
-      return this.$class.fetchOne(this.attrs.id.value);
     },
 
     initialize: function() {},
@@ -188,6 +185,15 @@
     primaryKey: function() {
       var primaryKey = _.findKey(this.attrs, { primary: true });
       return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+    },
+
+    // send only changed data
+    save: function() {
+      if (this.attrs.id) {
+
+      } else {
+
+      }
     },
 
     set: function(properties) {
@@ -202,6 +208,16 @@
 
     url: function() {
       return buildUrl(this.baseUrl, this.name, this.primaryKey());
+    },
+
+    validate: function() {
+      var self = this;
+      self.errors = {};
+      _.each(self.attrs, function(attr, key) {
+        if(!attr.validate())
+          self.errors[key] = attr.errors;
+      });
+      return this.isValid(false);
     }
   };
 
