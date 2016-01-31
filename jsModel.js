@@ -43,7 +43,7 @@
           this.validate();
         return _.isEmpty(this.errors);
       }
-    }, properties);
+    }, this.$class.$attrObj, properties);
 
     var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
@@ -118,6 +118,8 @@
         assocs: {}
       }, this.$instance);
 
+      properties = obj.parse(properties);
+
       _.each(obj.$class.attrs, function(value, key) {
         var attr = createAttribute.call(obj, value);
         Object.defineProperty(obj.attrs, key, {
@@ -142,7 +144,7 @@
         });
       });
 
-      _.each(_.pick(properties, _.keys(obj.attrs)), function(value, key) {
+      _.each(_.pick(properties, _.keys(obj.$class.attrs)), function(value, key) {
         obj.attrs[key].value = value;
         obj.attrs[key].setPreviousValue();
       });
@@ -167,9 +169,11 @@
     extend: function(classMethods, instanceMethods, attributeMethods) {
       var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
+      var attrObj = _.extend({}, this.$attrObj, attributeMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
+      classObj.$attrObj = attrObj;
 
       _.each(classObj.attrs, function(value, key) {
         classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
@@ -222,18 +226,15 @@
           return json;
         });
     },
+
     fetchOne: function(id) {
-      var self = this;
-      return fetch(this.url(id))
-        .then(function(response) {
-          return response.json();
-        }).then(function(json) {
-          return self.create(self.httpParse(json));
-        });
+      return this.create({ id: id }).fetch();
     },
+
     httpParse: function(data, direction) {
       return data;
     },
+
     /* useless but can be overwitten */
     parse: function(properties) {
       return properties;
@@ -258,6 +259,7 @@
         body: this.httpParse(data)
       });
     },
+
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
@@ -273,6 +275,13 @@
           changed[attrName] = attrObj.value;
       });
       return changed;
+    },
+
+    cleanAttributes: function() {
+      var self = this;
+      _.each(this.$class.attrs, function(attr, key) {
+        self.attrs[key].setPreviousValue();
+      });
     },
 
     computeAssocs: function(data) {
@@ -292,21 +301,28 @@
       });
     },
 
-    delete: function() {
-      return this.$class.delete(this.primaryKey());
+    delete: function(){
+      return this.$class.delete(this.primaryKeyValue());
     },
 
     errors: function() {
       var errors = {};
-      _.each(this.attrs, function(attrObj, attrName) {
-        if(!_.isEmpty(attrObj.errors))
-          errors[attrName] = attrObj.errors;
+      var self = this;
+      _.each(this.$class.attrs, function(attrObj, attrName) {
+        var obj = self.attrs[attrName];
+        if(!_.isEmpty(obj.errors))
+          errors[attrName] = obj.errors;
       });
       return errors;
     },
 
-    fetch: function() {
-      return this.$class.fetchOne(this.attrs.id.value);
+    validate: function() {
+      var self = this;
+
+      _.each(self.$class.attrs, function(attr, attrName) {
+        self.attrs[attrName].validate();
+      });
+      return this.isValid(false);
     },
 
     isValid: function(applyValidation) {
@@ -316,11 +332,33 @@
       return _.isEmpty(this.errors());
     },
 
+    fetch: function() {
+      var self = this;
+      return fetch(this.url(this.id))
+        .then(function(response) {
+          return response.json();
+        }).then(function(json) {
+          json = self.$class.httpParse(json);
+          json = self.parse(json);
+          self.set(json);
+          self.cleanAttributes();
+          return self;
+        });
+    },
+
     initialize: function() {},
 
+    /* useless but can be overwitten */
+    parse: function(properties) {
+      return properties;
+    },
+
     primaryKey: function() {
-      var primaryKey = _.findKey(this.attrs, { primary: true });
-      return (primaryKey && this.attrs[primaryKey].value) || this.attrs.id.value;
+      return _.findKey(this.$class.attrs, { primary: true }) || "id";
+    },
+
+    primaryKeyValue: function() {
+      return this.attrs[this.primaryKey()].value;
     },
 
     save: function() {
@@ -329,7 +367,6 @@
       if (_.isEmpty(this.primaryKey())) {
         var data = {};
         _.each(this.$class.attrs, function(attr, key) {
-          debugger;
           data[key] = self.attrs[key].value;
         });
 
@@ -346,17 +383,17 @@
     set: function(properties) {
       var self = this;
 
-      _.chain(properties).pick(_.keys(this.attrs)).each(function(value, key) {
+      _.chain(properties).pick(_.keys(this.$class.attrs)).each(function(value, key) {
         if (self.attrs[key]) {
           self.attrs[key].value = value;
         }
       }).value();
 
-      obj.computeAssocs(properties);
+      self.computeAssocs(properties);
     },
 
     url: function() {
-      return buildUrl(this.baseUrl, this.name, this.primaryKey());
+      return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKeyValue());
     },
 
     validate: function() {
