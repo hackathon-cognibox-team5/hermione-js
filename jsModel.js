@@ -15,7 +15,7 @@
   function createAttribute(properties) {
     var attrObject = _.extend({
       $parent: this,
-      previousValue: undefined,
+      previousValue: properties.value,
       isDirty: false,
       setPreviousValue: function(value) {
         this.isDirty = false;
@@ -34,6 +34,9 @@
         });
         return this.isValid(false);
       },
+      hasChanged: function() {
+        return this.value !== this.previousValue;
+      },
       isValid: function(applyValidation) {
         // if applyValidation is set at false, skip validation process. Default is true
         if(applyValidation !== false )
@@ -42,16 +45,21 @@
       }
     }, properties);
 
-    var attrObjValue;
+    var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
       get: function() {
         return attrObjValue;
       },
       set: function(value) {
         if (!_.isEqual(attrObjValue, value)) {
-          attrObject.isDirty = true;
+          this.isDirty = true;
         }
-        attrObjValue = value;
+
+        attrObjValue = this.parse ? this.parse(value) : value;
+        if(this.$parent.$class.autoValidate !== false)
+          this.validate();
+
+        return attrObjValue;
       }
     });
 
@@ -60,13 +68,38 @@
 
   function createAssociation(properties) {
     var self = this;
+    var assocModel = modelMapping[self.model];
     var assocObject = _.extend({
       fetch: function() {
+        var self = this;
         return fetch(this.url())
           .then(function(response) {
             return response.json();
-          }
-        );
+          }).then(function(json) {
+            json = assocModel.httpParse(json);
+            var elements;
+
+            if (_.isArray(json)) {
+              _.each(json, function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json = elements;
+            }
+            else if (_.isArray(json.data)) {
+              _.each(_.isArray(json.data), function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json.data = elements;
+            }
+            else if (_.isArray(json[pluralize(self.name)])) {
+              _.each(_.isArray(json[pluralize(self.name)]), function(element) {
+                elements.push(assocModel.create(element));
+              });
+              json[pluralize(self.name)] = elements;
+            }
+
+            return json;
+          });
       },
       url: function() {
         return self.url() + '/' + modelMapping[this.model].name;
@@ -80,14 +113,33 @@
 
     // Model.create({ id: 1 })
     create: function(properties, options) {
-      var obj = _.extend({}, this.$instance);
+      var obj = _.extend({
+        attrs: {},
+        assocs: {}
+      }, this.$instance);
 
-      obj.attrs = _.extend({}, this.attrs);
-      _.each(obj.attrs, function(value, key) {
-        obj.attrs[key] = createAttribute.call(this, value);
+      _.each(obj.$class.attrs, function(value, key) {
+        var attr = createAttribute.call(obj, value);
+        Object.defineProperty(obj.attrs, key, {
+          get: function() {
+            return attr;
+          },
+          set: function(value) {
+            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+          }
+        });
       });
-      _.each(obj.assocs, function(value, key) {
-        obj.assocs[key] = createAssociation.call(this, value);
+
+      _.each(obj.$class.assocs, function(value, key) {
+        var attr = createAssociation.call(obj, value);
+        Object.defineProperty(obj.assocs, key, {
+          get: function() {
+            return attr;
+          },
+          set: function(value) {
+            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+          }
+        });
       });
 
       _.each(properties, function(value, key) {
@@ -95,7 +147,8 @@
         obj.attrs[key].setPreviousValue();
       });
 
-      obj.initialize();
+      obj.initialize(properties);
+      obj.computeAssocs(properties);
 
       return obj;
     },
@@ -111,52 +164,80 @@
         get: function(options) { return this.sync("read", null, options); }
       });
     */
-    extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+    extend: function(classMethods, instanceMethods, attributeMethods) {
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
 
-      if (configuration.attrs) {
-        _.each(configuration.attrs, function(value, key) {
-          classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
-        });
-      }
+      _.each(classObj.attrs, function(value, key) {
+        classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+      });
 
-      if(configuration.assocs) {
-        classObj.assocs = configuration.assocs;
-        instanceObj.assocs = configuration.assocs;
-      }
-
-      if (configuration.baseUrl) {
-        classObj.baseUrl = configuration.baseUrl;
-        instanceObj.baseUrl = configuration.baseUrl;
-      }
-
-      if (configuration.name) {
-        classObj.name = configuration.name;
-        instanceObj.name = configuration.name;
-        modelMapping[configuration.name] = classObj;
+      if (classObj.name) {
+        modelMapping[classObj.name] = classObj;
       }
 
       return classObj;
     },
+    delete: function(id){
+      return fetch(this.url(id),{method: 'delete'})
+        .then(function(response) {
+          return response.json();
+        }).then(function(json){
+          return json;
+          }).catch(function (e){
+            console.error(e);
+            });
+    },
     fetchAll: function() {
+      var self = this;
       return fetch(this.url())
         .then(function(response) {
           return response.json();
+        }).then(function(json) {
+          json = self.httpParse(json);
+          var elements;
+
+          if (_.isArray(json)) {
+            _.each(json, function(element) {
+              elements.push(self.create(element));
+            });
+            json = elements;
+          }
+          else if (_.isArray(json.data)) {
+            _.each(_.isArray(json.data), function(element) {
+              elements.push(self.create(element));
+            });
+            json.data = elements;
+          }
+          else if (_.isArray(json[pluralize(self.name)])) {
+            _.each(_.isArray(json[pluralize(self.name)]), function(element) {
+              elements.push(self.create(element));
+            });
+            json[pluralize(self.name)] = elements;
+          }
+
+          return json;
         });
     },
-
     fetchOne: function(id) {
+      var self = this;
       return fetch(this.url(id))
         .then(function(response) {
           return response.json();
-        }
-      );
+        }).then(function(json) {
+          return self.create(self.httpParse(json));
+        });
     },
-
+    httpParse: function(data, direction) {
+      return data;
+    },
+    /* useless but can be overwitten */
+    parse: function(properties) {
+      return properties;
+    },
     url: function(id) {
       return buildUrl(this.baseUrl, this.name, id);
     }
@@ -169,15 +250,45 @@
 
     },
 
+    computeAssocs: function(data) {
+      var self = this;
+
+      var assocs = _.pick(data, _.keys(this.assocs));
+      _.each(assocs, function(value, key) {
+        var assocModel = modelMapping[self.assocs[key].model];
+        if (self.assocs[key].type === "many") {
+          _.each(value, function(v, k) {
+            value[k] = assocModel.create(v);
+          });
+          self.assocs[key].value = value;
+        } else if (self.assocs[key].type === "one") {
+          self.assocs[key].value = assocModel.create(value);
+        }
+      });
+    },
+
+    delete: function() {
+      return this.$class.delete(this.primaryKey());
+    },
+
+    errors: function() {
+      var errors = {};
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(!_.isEmpty(attrObj.errors))
+          errors[attrName] = attrObj.errors;
+      });
+      return errors;
+    },
+
     fetch: function() {
       return this.$class.fetchOne(this.attrs.id.value);
     },
 
     isValid: function(applyValidation) {
       // if applyValidation is set at false, skip validation process. Default is true
-      if(applyValidation !== false )
+      if (applyValidation !== false )
         this.validate();
-      return _.isEmpty(this.errors);
+      return _.isEmpty(this.errors());
     },
 
     initialize: function() {},
@@ -204,6 +315,8 @@
           self.attrs[key].value = value;
         }
       }).value();
+
+      obj.computeAssocs(properties);
     },
 
     url: function() {
@@ -222,6 +335,5 @@
   };
 
   window.JsModel = JsModel;
-  window.createAttribute = createAttribute;
 
 })();
