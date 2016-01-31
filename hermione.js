@@ -108,7 +108,7 @@
     return assocObject;
   }
 
-  var JsModel = {
+  var Hermione = {
     attrs: {},
 
     // Model.create({ id: 1 })
@@ -264,8 +264,8 @@
       return buildUrl(this.baseUrl, this.name, id);
     }
   };
-  JsModel.$instance = {
-    $class: JsModel,
+  Hermione.$instance = {
+    $class: Hermione,
 
     changedAttributes: function() {
       var changed = {};
@@ -397,6 +397,6 @@
     }
   };
 
-  window.JsModel = JsModel;
+  window.Hermione = Hermione;
 
 })();

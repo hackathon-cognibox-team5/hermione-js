@@ -1,10 +1,13 @@
 {
-  "name": "js-model",
-  "homepage": "https://github.com/hackathon-cognibox-team5/js-model",
+  "name": "hermione",
+  "homepage": "https://github.com/hackathon-cognibox-team5/hermione",
   "authors": [
-    "Ian Bussieres <ibussieres@cognibox.com>"
+    "Ian Bussières <ian.bussieres@gmail.com>",
+    "Frédéric Dufresne <frederickdufresne@deepteal.com>",
+    "Philippe Lafontaine <lafontaine.philippe@gmail.com>",
+    "Mathieu St-Yves <mathieu.st-yves@hotmail.com>"
   ],
-  "description": "Framework agnostic javascript model layer",
+  "description": "Framework agnostic javascript model layer built with attribute functions in mind.",
   "main": "",
   "moduleType": [],
   "license": "MIT",
