@@ -3,7 +3,7 @@
 
 ## About
 
-Everybody had a classmate that knew everything about anything, much like [Hermione](http://harrypotter.wikia.com/wiki/Hermione_Granger) from the Harry Potter series. While your project is the main character, Hermione.js serves the knowledge.
+Everybody had a classmate that knew everything about anything, much like [Hermione](http://harrypotter.wikia.com/wiki/Hermione_Granger) from the Harry Potter series. While your project is the main character, Hermione.js serves the knowledge. Disclaimer, this is a weekend Hackathon effort.
 
 ## Purpose
 
