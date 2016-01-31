@@ -149,8 +149,6 @@ user.attrs.username.isDirty;
 ```
 
 #### isValid
-Configuration
-
 Use same validation pattern in: https://validatejs.org/#validators
 ```js
 var User = JsModel.extend({
