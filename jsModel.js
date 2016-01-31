@@ -103,8 +103,17 @@
           }
         });
       });
+
       _.each(obj.$class.assocs, function(value, key) {
-        obj.assocs[key] = createAssociation.call(obj, value);
+        var attr = createAssociation.call(obj, value);
+        Object.defineProperty(obj.assocs, key, {
+          get: function() {
+            return attr;
+          },
+          set: function(value) {
+            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+          }
+        });
       });
 
       _.each(properties, function(value, key) {
