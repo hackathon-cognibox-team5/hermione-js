@@ -142,7 +142,7 @@
         });
       });
 
-      _.each(properties, function(value, key) {
+      _.each(_.pick(properties, _.keys(obj.attrs)), function(value, key) {
         obj.attrs[key].value = value;
         obj.attrs[key].setPreviousValue();
       });
@@ -198,7 +198,7 @@
           return response.json();
         }).then(function(json) {
           json = self.httpParse(json);
-          var elements;
+          var elements = [];
 
           if (_.isArray(json)) {
             _.each(json, function(element) {
