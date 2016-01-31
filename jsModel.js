@@ -366,10 +366,8 @@
       var data = {};
       if (_.isEmpty(this.primaryKeyValue())) {
         _.each(this.$class.attrs, function(attr, key) {
-          data[key] = self.attrs[key].value;
+          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
         });
-
-        console.log(data);
 
         this.$class.post(data);
       } else if (!_.isEmpty(attributes)) {
@@ -394,16 +392,6 @@
 
     url: function() {
       return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKeyValue());
-    },
-
-    validate: function() {
-      var self = this;
-      self.errors = {};
-      _.each(self.attrs, function(attr, key) {
-        if(!attr.validate())
-          self.errors[key] = attr.errors;
-      });
-      return this.isValid(false);
     }
   };
 
