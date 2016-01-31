@@ -80,13 +80,15 @@
 
     // Model.create({ id: 1 })
     create: function(properties, options) {
-      var obj = _.extend({}, this.$instance);
+      var obj = _.extend({
+        attrs: {},
+        assocs: {}
+      }, this.$instance);
 
-      obj.attrs = _.extend({}, this.attrs);
-      _.each(obj.attrs, function(value, key) {
+      _.each(this.attrs, function(value, key) {
         obj.attrs[key] = createAttribute.call(this, value);
       });
-      _.each(obj.assocs, function(value, key) {
+      _.each(this.assocs, function(value, key) {
         obj.assocs[key] = createAssociation.call(this, value);
       });
 
@@ -111,33 +113,19 @@
         get: function(options) { return this.sync("read", null, options); }
       });
     */
-    extend: function(configuration, instanceMethods, classMethods) {
-      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, classMethods);
+    extend: function(classMethods, instanceMethods) {
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
       var classObj = _.extend({ $super: this }, this, classMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
 
-      if (configuration.attrs) {
-        _.each(configuration.attrs, function(value, key) {
-          classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
-        });
-      }
+      _.each(classObj.attrs, function(value, key) {
+        classObj.attrs[key] = _.extend({}, attributeObjDefinition, value);
+      });
 
-      if(configuration.assocs) {
-        classObj.assocs = configuration.assocs;
-        instanceObj.assocs = configuration.assocs;
-      }
-
-      if (configuration.baseUrl) {
-        classObj.baseUrl = configuration.baseUrl;
-        instanceObj.baseUrl = configuration.baseUrl;
-      }
-
-      if (configuration.name) {
-        classObj.name = configuration.name;
-        instanceObj.name = configuration.name;
-        modelMapping[configuration.name] = classObj;
+      if (classObj.name) {
+        modelMapping[classObj.name] = classObj;
       }
 
       return classObj;
@@ -201,7 +189,7 @@
     },
 
     url: function() {
-      return buildUrl(this.baseUrl, this.name, this.primaryKey());
+      return buildUrl(this.$class.baseUrl, this.$class.name, this.primaryKey());
     }
   };
 
