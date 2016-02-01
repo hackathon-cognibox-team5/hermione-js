@@ -141,8 +141,8 @@ user.fetch();
 #### hasChanged
 Can be set to automatically run validation on attributes changes
 ```js
-user.attrs.username.hasChanged(); // check if the current attribute is valid
-user.hasChanged(); // check if all attributes are valid
+user.attrs.username.hasChanged(); // check if the current attribute has changed
+user.hasChanged(); // check if all attributes have changed.
 ```
 
 #### primaryKey
