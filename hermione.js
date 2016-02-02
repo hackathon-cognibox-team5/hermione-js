@@ -47,6 +47,7 @@
 
     var attrObjValue = properties.default; //default value
     Object.defineProperty(attrObject, 'value', {
+      enumerable: true,
       get: function() {
         return attrObjValue;
       },
@@ -123,6 +124,7 @@
       _.each(obj.$class.attrs, function(value, key) {
         var attr = createAttribute.call(obj, value);
         Object.defineProperty(obj.attrs, key, {
+          enumerable: true,
           get: function() {
             return attr;
           },
@@ -135,6 +137,7 @@
       _.each(obj.$class.assocs, function(value, key) {
         var attr = createAssociation.call(obj, value);
         Object.defineProperty(obj.assocs, key, {
+          enumerable: true,
           get: function() {
             return attr;
           },
@@ -269,18 +272,16 @@
 
     changedAttributes: function() {
       var changed = {};
-      var self = this;
-      _.each(this.$class.attrs, function(attrObj, attrName) {
-        if(self.attrs[attrName].hasChanged())
-          changed[attrName] = self.attrs[attrName].value;
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(attrObj.hasChanged())
+          changed[attrName] = attrObj.value;
       });
       return changed;
     },
 
     cleanAttributes: function() {
-      var self = this;
-      _.each(this.$class.attrs, function(attr, key) {
-        self.attrs[key].setPreviousValue();
+      _.each(this.$class.attrs, function(attr) {
+        attr.setPreviousValue();
       });
     },
 
@@ -307,20 +308,16 @@
 
     validationErrors: function() {
       var errors = {};
-      var self = this;
-      _.each(this.$class.attrs, function(attrObj, attrName) {
-        var obj = self.attrs[attrName];
-        if(!_.isEmpty(obj.validationErrors))
-          errors[attrName] = obj.validationErrors;
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(!_.isEmpty(attrObj.validationErrors))
+          errors[attrName] = attrObj.validationErrors;
       });
       return errors;
     },
 
     validate: function() {
-      var self = this;
-
-      _.each(self.$class.attrs, function(attr, attrName) {
-        self.attrs[attrName].validate();
+      _.each(self.attrs, function(attr) {
+        attr.validate();
       });
       return this.isValid(false);
     },
@@ -362,21 +359,21 @@
     },
 
     save: function() {
-      var self = this;
       var attributes = this.changedAttributes();
       var data = {};
 
       // New record
       if (!this.primaryKeyValue()) {
-        _.each(this.$class.attrs, function(attr, key) {
-          if (self.attrs[key].value !== undefined) data[key] = self.attrs[key].value;
+        _.each(this.attrs, function(attr, key) {
+          if (attr.value !== undefined) data[key] = attr.value;
         });
 
         this.$class.post(data);
         // Update record
       } else if (!_.isEmpty(attributes)) {
-        _.each(this.$class.attrs, function(attr, key) {
-          if (self.attrs[key].value !== undefined && key !== self.primaryKey()) data[key] = self.attrs[key].value;
+        var pKey = this.primaryKey();
+        _.each(this.attrs, function(attr, key) {
+          if (attr.value !== undefined && key !== pKey) data[key] = attr.value;
         });
 
         this.$class.put(this.primaryKeyValue(), data);
@@ -386,7 +383,7 @@
     set: function(properties) {
       var self = this;
 
-      _.chain(properties).pick(_.keys(this.$class.attrs)).each(function(value, key) {
+      _.chain(properties).pick(_.keys(this.attrs)).each(function(value, key) {
         if (self.attrs[key]) {
           self.attrs[key].value = value;
         }
