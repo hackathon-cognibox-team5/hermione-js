@@ -1,6 +1,10 @@
 {
   "name": "hermione",
-  "homepage": "https://github.com/hackathon-cognibox-team5/hermione",
+  "homepage": "https://github.com/hackathon-cognibox-team5/hermione-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hackathon-cognibox-team5/hermione-js.git"
+  },
   "authors": [
     "Ian Bussières <ian.bussieres@gmail.com>",
     "Frédéric Dufresne <frederickdufresne@deepteal.com>",
@@ -9,7 +13,9 @@
   ],
   "description": "Framework agnostic javascript model layer built with attribute functions in mind.",
   "main": "hermione.js",
-  "moduleType": [],
+  "moduleType": [
+    "globals"
+  ],
   "license": "MIT",
   "private": false,
   "ignore": [
