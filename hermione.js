@@ -1,7 +1,7 @@
 (function(global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(['lodash', 'pluralize','validate'],factory) :
-  (global.Hermione = factory());
+  (global.Hermione = factory(global._, global.pluralize, global.validate));
 }(this, function(_, pluralize, validate) {
   var attributeObjDefinition = {};
   var modelMapping = {};
