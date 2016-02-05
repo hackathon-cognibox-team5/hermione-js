@@ -7,21 +7,21 @@
  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hello World!</title>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <script data-main="script/main.js" src="bower_components/requirejs/require.js"></script>
-  <style>
-    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-      display: none !important;
-    }
-  </style>
+  <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="bower_components/lodash/lodash.js"></script>
+    <script type="text/javascript" src="bower_components/pluralize/pluralize.js"></script>
+    <script type="text/javascript" src="bower_components/validate/validate.js"></script>
+    <script type="text/javascript" src="bower_components/Hermione/hermione.js"></script>
+    <script type="text/javascript" src="script/app.js"></script>
 </head>
-<body>
+<body ng-app="app">
   <div class="container">
-    <div ng-controller="appController" ng-cloak>
+    <div ng-controller="appController">
       <form>
         <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.firstName.isValid()}">
           <label for="titleInput">First Name</label>
           <input type="text" class="form-control" ng-model="employee.attrs.firstName.value">
-          <div class="alert alert-danger" ng-show="!employee.attrs.firstName.isValid()"> {{ formatErrors(employee.attrs.firstName.validationErrors) }} </div>
+      <div class="alert alert-danger" ng-show="!employee.attrs.firstName.isValid()"> {{ formatErrors(employee.attrs.firstName.validationErrors) }} </div>
         </fieldset>
         <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.lastName.isValid()}">
           <label for="titleInput">Last Name</label>
@@ -29,8 +29,7 @@
           <div class="alert alert-danger" ng-show="!employee.attrs.lastName.isValid()">
             {{ formatErrors(employee.attrs.lastName.validationErrors) }} </div>
         </fieldset>
-      <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()"
-              ng-click="submit()">Submit</button>
+      <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()">Submit</button>
      </form>
     </div>
 </div>
