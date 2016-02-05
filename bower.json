@@ -13,11 +13,7 @@
   ],
   "description": "Framework agnostic javascript model layer built with attribute functions in mind.",
   "main": "hermione.js",
-  "moduleType": [
-    "globals"
-  ],
   "license": "MIT",
-  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
