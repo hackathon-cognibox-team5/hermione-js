@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!-- Quick html page to test our concepts -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <script data-main="script/main.js" src="./bower_components/requirejs/require.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div ng-controller="appController">
+      <form>
+        <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.firstName.isValid()}">
+          <label for="titleInput">First Name</label>
+          <input type="text" class="form-control" ng-model="employee.attrs.firstName.value">
+      <div class="alert alert-danger" ng-show="!employee.attrs.firstName.isValid()"> {{ formatErrors(employee.attrs.firstName.validationErrors) }} </div>
+        </fieldset>
+        <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.lastName.isValid()}">
+          <label for="titleInput">Last Name</label>
+          <input type="text" class="form-control" ng-model="employee.attrs.lastName.value">
+          <div class="alert alert-danger" ng-show="!employee.attrs.lastName.isValid()">
+            {{ formatErrors(employee.attrs.lastName.validationErrors) }} </div>
+        </fieldset>
+      <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()">Submit</button>
+     </form>
+    </div>
+</div>
+</body>
+</html>

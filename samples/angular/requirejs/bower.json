@@ -1,0 +1,23 @@
+{
+  "name": "hermione-sample-angular-requirejs",
+  "homepage": "https://github.com/hackathon-cognibox-team5/hermione-js",
+  "authors": [
+    "Philippe Lafontaine <lafontaine.philippe@gmail.com>"
+  ],
+  "description": "an angular based hermionejs sample",
+  "main": "script/app.js",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angularAMD": "^0.2.1",
+    "bootstrap": "^3.3.6"
+  }
+}
