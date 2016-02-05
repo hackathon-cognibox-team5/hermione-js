@@ -19,7 +19,8 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "samples"
   ],
   "dependencies": {
     "fetch": "^0.11.0",
