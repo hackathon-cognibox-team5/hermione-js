@@ -26,6 +26,7 @@
     "fetch": "^0.11.0",
     "lodash": "^4.1.0",
     "validate": "validate.js#^0.9.0",
-    "pluralize": "^1.2.1"
+    "pluralize": "^1.2.1",
+    "es6-promise": "^3.0.2"
   }
 }
