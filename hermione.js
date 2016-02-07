@@ -1,7 +1,11 @@
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(['lodash', 'pluralize','validate'],factory) :
-  (global.Hermione = factory(global._, global.pluralize, global.validate));
+  if ((typeof exports === 'object') && (typeof module !== 'undefined')) {
+    module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
+  } else if ((typeof define === 'function') && (define.amd)) {
+    define(['lodash', 'pluralize','validate'],factory);
+  } else {
+    global.Hermione = factory(global._, global.pluralize, global.validate);
+ }
 }(this, function(_, pluralize, validate) {
   var attributeObjDefinition = {};
   var modelMapping = {};
