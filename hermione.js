@@ -1,22 +1,34 @@
 (function(global, factory) {
   if ((typeof exports === 'object') && (typeof module !== 'undefined')) {
     if (typeof global.Promise === 'undefined') {
-      global.Promise = require('es6-promise').Promise;
+      require('es6-promise').polyfill();
     }
     if (typeof global.fetch === 'undefined') {
       global.fetch = require('fetch');
     }
     module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
   } else if ((typeof define === 'function') && (define.amd)) {
-    define(function(require, exports, module) {
-      if (typeof global.Promise === 'undefined') {
-        global.Promise = require('es6-promise').Promise;
+    var factoryWithPolyfills = function($Promise, $fetch, lodash, pluralize, validate) {
+      if (typeof $Promise !== 'undefined') {
+        $Promise.polyfill();
       }
-      if (typeof global.fetch === 'undefined') {
-        global.fetch = require('fetch');
+      if (typeof $fetch !== 'undefined') {
+        global.fetch = $fetch;
       }
-      return factory(require('lodash'), require('pluralize'), require('validate'));
-    });
+      return factory(lodash, pluralize, validate);
+    };
+    var factoryWithFetchPolyfill = function ($fetch, lodash, pluralize, validate) {
+      if (typeof $fetch !== 'undefined') {
+        global.fetch = $fetch;
+      }
+      return factory(lodash, pluralize, validate);
+    };
+    if (typeof global.Promise === 'undefined') {
+      define(['es6-promise','fetch','lodash','pluralize','validate'], factoryWithPolyfills);
+    }
+    if (typeof global.fetch === 'undefined') {
+      define(['fetch','lodash','pluralize','validate'], factoryWithFetchPolyfill);
+    }
   } else {
     global.Hermione = factory(global._, global.pluralize, global.validate);
   }
