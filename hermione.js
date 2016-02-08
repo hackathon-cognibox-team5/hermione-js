@@ -9,12 +9,11 @@
     module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
   } else if ((typeof define === 'function') && (define.amd)) {
     if (typeof global.Promise === 'undefined') {
-      var self = global;
       require(['es6-promise'], function ($Promise) {
-        $promise.polyfill();
-        if (typeof self.fetch === 'undefined') {
-          require(['fetch'] function($fetch) {
-            $fetch();
+        $Promise.polyfill();
+        if (typeof global.fetch === 'undefined') {
+          require(['fetch'], function($fetch) {
+            global.fetch = $fetch;
             define(['lodash', 'pluralize','validate'], factory);
           });
         } else {
