@@ -34,7 +34,8 @@
             {{ formatErrors(employee.attrs.lastName.validationErrors) }}
           </div>
         </fieldset>
-      <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()">Submit</button>
+      <button type="submit" class="btn btn-primary" id="submitBtn" ng-click="submit()"
+              ng-disabled="!validAndChanged()">Submit</button>
      </form>
     </div>
 </div>
