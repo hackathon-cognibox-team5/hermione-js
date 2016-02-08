@@ -22,24 +22,23 @@
   }
 }(this, function(_, pluralize, validate) {
   if (typeof Promise === 'undefined') {
-    console.error("Promise is undefined. Please load a Promise polyfill before loading Hermione.js");
-    return;
+    console.error("[hermione.js] Promise is undefined." +
+                  " Please load a Promise polyfill before loading Hermione.js");
   }
   if (typeof fetch === 'undefined') {
-    console.error("fetch is undefined. Please load a fetch polyfill before loading Hermione.js");
-    return;
+    console.error("[hermione.js] fetch is undefined." +
+                  " Please load a fetch polyfill before loading Hermione.js");
   }
   if ((typeof _ === 'undefined') || (typeof _.VERSION === 'undefined'))  {
-    console.error("lodash is undefined. Please load lodash before loading Hermione.js");
-    return;
+    console.error("[hermione.js] lodash is undefined."+
+                  " Please load lodash before loading Hermione.js");
   }
   if (typeof pluralize === 'undefined') {
-    console.error("pluralize is undefined. Please load before loading Hermione.js");
-    return;
+    console.error("[hermione.js]pluralize is undefined. Please load before loading Hermione.js");
   }
   if ((typeof validate === 'undefined') || (typeof validate.version === 'undefined') ){
-    console.error("validate.js is undefined. Please load validate.js before loading Hermione.js");
-    return;
+    console.error("[hermione.js] validate.js is undefined." +
+                  " Please load validate.js before loading Hermione.js");
   }
   var attributeObjDefinition = {};
   var modelMapping = {};
@@ -171,7 +170,8 @@
             return attr;
           },
           set: function(value) {
-            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+            console.error("[hermione.js] Not allowed, please use model.set({" + key + ":" +
+                          value +"})");
           }
         });
       });
@@ -184,7 +184,8 @@
             return attr;
           },
           set: function(value) {
-            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+            console.error("[hermione.js] Not allowed, please use model.set({" + key + ":" +
+                          value +"})");
           }
         });
       });
