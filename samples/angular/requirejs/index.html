@@ -3,36 +3,34 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
- <meta http-equiv="X-UA-Compatible" content="IE=edge">
- <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hello World!</title>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <script data-main="script/main.js" src="bower_components/requirejs/require.js"></script>
   <style>
-    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-      display: none !important;
-    }
+  [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+  }
   </style>
 </head>
 <body>
   <div class="container">
-    <div ng-controller="appController" ng-cloak>
-      <form>
-        <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.firstName.isValid()}">
-          <label for="titleInput">First Name</label>
-          <input type="text" class="form-control" ng-model="employee.attrs.firstName.value">
-          <div class="alert alert-danger" ng-show="!employee.attrs.firstName.isValid()"> {{ formatErrors(employee.attrs.firstName.validationErrors) }} </div>
+    <form class="row" ng-controller="appController" ng-cloak>
+      <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.firstName.isValid()}">
+        <label for="titleInput">First Name</label>
+        <input type="text" class="form-control" ng-model="employee.attrs.firstName.value">
+        <div class="alert alert-danger" ng-show="!employee.attrs.firstName.isValid()"> {{ formatErrors(employee.attrs.firstName.validationErrors) }} </div>
+      </fieldset>
+      <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.lastName.isValid()}">
+        <label for="titleInput">Last Name</label>
+        <input type="text" class="form-control" ng-model="employee.attrs.lastName.value">
+        <div class="alert alert-danger" ng-show="!employee.attrs.lastName.isValid()">
+          {{ formatErrors(employee.attrs.lastName.validationErrors) }} </div>
         </fieldset>
-        <fieldset class="form-group" ng-class="{'has-error': !employee.attrs.lastName.isValid()}">
-          <label for="titleInput">Last Name</label>
-          <input type="text" class="form-control" ng-model="employee.attrs.lastName.value">
-          <div class="alert alert-danger" ng-show="!employee.attrs.lastName.isValid()">
-            {{ formatErrors(employee.attrs.lastName.validationErrors) }} </div>
-        </fieldset>
-      <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()"
-              ng-click="submit()">Submit</button>
-     </form>
-    </div>
-</div>
+        <button type="submit" class="btn btn-primary" id="submitBtn" ng-disabled="!validAndChanged()"
+        ng-click="submit()">Submit</button>
+    </form>
+  </div>
 </body>
 </html>
