@@ -1,16 +1,7 @@
-define(['angularAMD', 'Hermione'],function(angularAMD, Hermione) {
+define(['angularAMD', './models/Person'],function(angularAMD, Person) {
   "use strict";
   var app = angular.module('app', [])
          .controller('appController', function appController($scope) {
-    var Person = Hermione.extend({
-      name: "employee",
-      baseUrl: "",
-      attrs: {
-        id: {},
-        firstName: { validations: { length: { maximum: 20 } } },
-        lastName: { validations: { length: { maximum: 20 } } }
-      }
-    });
     $scope.employee = Person.create({
       id: 1,
       firstName: "bob",
