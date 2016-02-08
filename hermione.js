@@ -25,9 +25,10 @@
     };
     if (typeof global.Promise === 'undefined') {
       define(['es6-promise','fetch','lodash','pluralize','validate'], factoryWithPolyfills);
-    }
-    if (typeof global.fetch === 'undefined') {
+    } else if (typeof global.fetch === 'undefined') {
       define(['fetch','lodash','pluralize','validate'], factoryWithFetchPolyfill);
+    } else {
+      define(['lodash','pluralize','validate'], factory);
     }
   } else {
     global.Hermione = factory(global._, global.pluralize, global.validate);
