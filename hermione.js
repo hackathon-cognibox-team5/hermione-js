@@ -1,11 +1,19 @@
 (function(global, factory) {
+  console.log(global.toString());
   if ((typeof exports === 'object') && (typeof module !== 'undefined')) {
+    if (typeof global.Promise === 'undefined') {
+      global.Promise = require('es6-promise').Promise;
+    }
+    if (typeof global.fetch === 'undefined') {
+      global.fetch = require('fetch');
+    }
     module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
   } else if ((typeof define === 'function') && (define.amd)) {
-    define(['lodash', 'pluralize','validate'],factory);
+      define(['lodash', 'pluralize','validate'],factory);
   } else {
     global.Hermione = factory(global._, global.pluralize, global.validate);
- }
+  }
+
 }(this, function(_, pluralize, validate) {
   var attributeObjDefinition = {};
   var modelMapping = {};
