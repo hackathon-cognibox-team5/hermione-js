@@ -1,6 +1,5 @@
 define(['angularAMD', 'Hermione'],function(angularAMD, Hermione) {
   "use strict";
-
   var app = angular.module('app', [])
          .controller('appController', function appController($scope) {
     var Person = Hermione.extend({

@@ -8,24 +8,39 @@
     }
     module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
   } else if ((typeof define === 'function') && (define.amd)) {
-    if (typeof global.Promise === 'undefined') {
-      require(['es6-promise'], function ($Promise) {
-        $Promise.polyfill();
-        if (typeof global.fetch === 'undefined') {
-          require(['fetch'], function($fetch) {
-            global.fetch = $fetch;
-            define(['lodash', 'pluralize','validate'], factory);
-          });
-        } else {
-            define(['lodash', 'pluralize','validate'], factory);
-        }
-      });
-    }
+    define(function(require, exports, module) {
+      if (typeof global.Promise === 'undefined') {
+        global.Promise = require('es6-promise').Promise;
+      }
+      if (typeof global.fetch === 'undefined') {
+        global.fetch = require('fetch');
+      }
+      return factory(require('lodash'), require('pluralize'), require('validate'));
+    });
   } else {
     global.Hermione = factory(global._, global.pluralize, global.validate);
   }
-
 }(this, function(_, pluralize, validate) {
+  if (typeof Promise === 'undefined') {
+    console.error("Promise is undefined. Please load a Promise polyfill before loading Hermione.js");
+    return;
+  }
+  if (typeof fetch === 'undefined') {
+    console.error("fetch is undefined. Please load a fetch polyfill before loading Hermione.js");
+    return;
+  }
+  if ((typeof _ === 'undefined') || (typeof _.VERSION === 'undefined'))  {
+    console.error("lodash is undefined. Please load lodash before loading Hermione.js");
+    return;
+  }
+  if (typeof pluralize === 'undefined') {
+    console.error("pluralize is undefined. Please load before loading Hermione.js");
+    return;
+  }
+  if ((typeof validate === 'undefined') || (typeof validate.version === 'undefined') ){
+    console.error("validate.js is undefined. Please load validate.js before loading Hermione.js");
+    return;
+  }
   var attributeObjDefinition = {};
   var modelMapping = {};
 
