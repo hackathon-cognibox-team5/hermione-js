@@ -13,54 +13,49 @@
   }
 
   function createAttribute(properties) {
-    var attrObject = _.extend({
-      $parent: this,
-      previousValue: properties.default,
-      isDirty: false,
-      setPreviousValue: function(value) {
-        this.isDirty = false;
-        this.previousValue = value || this.value;
-      },
-      validationErrors: {},
-      validate: function() {
-        var self = this;
-        self.validationErrors = {};
-        _.each(self.validations, function(validation, key) {
-          var singleValidation = {};
-          singleValidation[key] = validation;
-          var valid = validate.single(self.value, singleValidation);
-          if(valid !== undefined)
-            self.validationErrors[key] = valid;
-        });
-        return this.isValid(false);
-      },
-      hasChanged: function() {
-        return this.value !== this.previousValue;
-      },
-      isValid: function(applyValidation) {
-        // if applyValidation is set at false, skip validation process. Default is true
-        if(applyValidation !== false )
-          this.validate();
-        return _.isEmpty(this.validationErrors);
-      }
-    }, this.$class.$attrObj, properties);
+    if (!properties) properties = {};
 
     var attrObjValue = properties.default; //default value
+    var defaultAttrProp = {
+      _value: {
+        get: function() {
+          return attrObjValue;
+        },
+        set: function(value) {
+          if (!_.isEqual(attrObjValue, value)) {
+            this.isDirty = true;
+          }
+
+          attrObjValue = this.parse ? this.parse(value) : value;
+
+          return attrObjValue;
+        }
+      }
+    };
+
+
+    var parentAttrObjValueProp = _.extend({}, defaultAttrProp._value, this.$class.$super.$attrOb && this.$class.$super.$attrOb._value);
+    var parentAttrObj = _.extend({}, defaultAttrProp, this.$class.$super.$attrOb, { _value: parentAttrObjValueProp });
+
+    var attrObjValueProp = _.extend({}, defaultAttrProp._value, this.$class.$attrObj._value);
+    var attrObject = _.extend({
+        $parent: this,
+        $super: parentAttrObj,
+        previousValue: properties.default,
+      },
+      defaultAttrProp,
+      this.$class.$attrObj,
+      properties,
+      { _value: attrObjValueProp }
+    );
+
     Object.defineProperty(attrObject, 'value', {
       enumerable: true,
       get: function() {
-        return attrObjValue;
+        return this._value.get.call(this);
       },
       set: function(value) {
-        if (!_.isEqual(attrObjValue, value)) {
-          this.isDirty = true;
-        }
-
-        attrObjValue = this.parse ? this.parse(value) : value;
-        if(this.$parent.$class.autoValidate !== false)
-          this.validate();
-
-        return attrObjValue;
+        return this._value.set.call(this, value);
       }
     });
 
@@ -110,6 +105,17 @@
   }
 
   var Hermione = {
+    $attrObj: {
+      isDirty: false,
+      setPreviousValue: function(value) {
+        this.isDirty = false;
+        this.previousValue = value || this.value;
+      },
+      hasChanged: function() {
+        return this.value !== this.previousValue;
+      }
+    },
+
     attrs: {},
 
     // Model.create({ id: 1 })
@@ -170,9 +176,9 @@
       });
     */
     extend: function(classMethods, instanceMethods, attributeMethods) {
-      var instanceObj = _.extend({ $super: this.$instance }, this.$instance);
+      var instanceObj = _.extend({ $super: this.$instance }, this.$instance, instanceMethods);
       var classObj = _.extend({ $super: this }, this, classMethods);
-      var attrObj = _.extend({}, this.$attrObj, attributeMethods);
+      var attrObj = _.extend({ }, this.$attrObj, attributeMethods);
 
       instanceObj.$class = classObj;
       classObj.$instance = instanceObj;
@@ -306,29 +312,6 @@
       return this.$class.delete(this.primaryKeyValue());
     },
 
-    validationErrors: function() {
-      var errors = {};
-      _.each(this.attrs, function(attrObj, attrName) {
-        if(!_.isEmpty(attrObj.validationErrors))
-          errors[attrName] = attrObj.validationErrors;
-      });
-      return errors;
-    },
-
-    validate: function() {
-      _.each(self.attrs, function(attr) {
-        attr.validate();
-      });
-      return this.isValid(false);
-    },
-
-    isValid: function(applyValidation) {
-      // if applyValidation is set at false, skip validation process. Default is true
-      if (applyValidation !== false )
-        this.validate();
-      return _.isEmpty(this.validationErrors());
-    },
-
     fetch: function() {
       var self = this;
       return fetch(this.url(this.id))
@@ -397,6 +380,66 @@
     }
   };
 
-  window.Hermione = Hermione;
+  /****************************************************************
+  ***************************Validations***************************
+  *****************************************************************/
+
+  var Validatable = Hermione.extend({
+
+  }, {
+    validationErrors: function() {
+      var errors = {};
+      _.each(this.attrs, function(attrObj, attrName) {
+        if(!_.isEmpty(attrObj.validationErrors))
+          errors[attrName] = attrObj.validationErrors;
+      });
+      return errors;
+    },
+
+    validate: function() {
+      _.each(self.attrs, function(attr) {
+        attr.validate();
+      });
+      return this.isValid(false);
+    },
+
+    isValid: function(applyValidation) {
+      // if applyValidation is set at false, skip validation process. Default is true
+      if (applyValidation !== false )
+        this.validate();
+      return _.isEmpty(this.validationErrors());
+    }
+  }, {
+    _value: {
+      set: function(value) {
+        console.log("????");
+        if(this.$parent.$class.autoValidate !== false)
+            this.validate();
+
+        return this.$super._value.set.call(this, value);
+      }
+    },
+    validationErrors: {},
+    validate: function() {
+      var self = this;
+      self.validationErrors = {};
+      _.each(self.validations, function(validation, key) {
+        var singleValidation = {};
+        singleValidation[key] = validation;
+        var valid = validate.single(self.value, singleValidation);
+        if(valid !== undefined)
+          self.validationErrors[key] = valid;
+      });
+      return this.isValid(false);
+    },
+    isValid: function(applyValidation) {
+      // if applyValidation is set at false, skip validation process. Default is true
+      if(applyValidation !== false )
+        this.validate();
+      return _.isEmpty(this.validationErrors);
+    }
+  });
+
+  window.Hermione = Validatable;
 
 })();
