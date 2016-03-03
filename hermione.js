@@ -1,4 +1,58 @@
-(function() {
+(function(global, factory) {
+  if ((typeof exports === 'object') && (typeof module !== 'undefined')) {
+    if (typeof global.Promise === 'undefined') {
+      require('es6-promise').polyfill();
+    }
+    if (typeof global.fetch === 'undefined') {
+      global.fetch = require('fetch');
+    }
+    module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
+  } else if ((typeof define === 'function') && (define.amd)) {
+    var factoryWithPolyfills = function($Promise, $fetch, lodash, pluralize, validate) {
+      if (typeof $Promise !== 'undefined') {
+        $Promise.polyfill();
+      }
+      if (typeof $fetch !== 'undefined') {
+        global.fetch = $fetch;
+      }
+      return factory(lodash, pluralize, validate);
+    };
+    var factoryWithFetchPolyfill = function ($fetch, lodash, pluralize, validate) {
+      if (typeof $fetch !== 'undefined') {
+        global.fetch = $fetch;
+      }
+      return factory(lodash, pluralize, validate);
+    };
+    if (typeof global.Promise === 'undefined') {
+      define(['es6-promise','fetch','lodash','pluralize','validate'], factoryWithPolyfills);
+    } else if (typeof global.fetch === 'undefined') {
+      define(['fetch','lodash','pluralize','validate'], factoryWithFetchPolyfill);
+    } else {
+      define(['lodash','pluralize','validate'], factory);
+    }
+  } else {
+    global.Hermione = factory(global._, global.pluralize, global.validate);
+  }
+}(this, function(_, pluralize, validate) {
+  if (typeof Promise === 'undefined') {
+    console.error("[hermione.js] Promise is undefined." +
+                  " Please load a Promise polyfill before loading Hermione.js");
+  }
+  if (typeof fetch === 'undefined') {
+    console.error("[hermione.js] fetch is undefined." +
+                  " Please load a fetch polyfill before loading Hermione.js");
+  }
+  if ((typeof _ === 'undefined') || (typeof _.VERSION === 'undefined'))  {
+    console.error("[hermione.js] lodash is undefined."+
+                  " Please load lodash before loading Hermione.js");
+  }
+  if (typeof pluralize === 'undefined') {
+    console.error("[hermione.js]pluralize is undefined. Please load before loading Hermione.js");
+  }
+  if ((typeof validate === 'undefined') || (typeof validate.version === 'undefined') ){
+    console.error("[hermione.js] validate.js is undefined." +
+                  " Please load validate.js before loading Hermione.js");
+  }
   var attributeObjDefinition = {};
   var modelMapping = {};
 
@@ -135,7 +189,8 @@
             return attr;
           },
           set: function(value) {
-            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+            console.error("[hermione.js] Not allowed, please use model.set({" + key + ":" +
+                          value +"})");
           }
         });
       });
@@ -148,7 +203,8 @@
             return attr;
           },
           set: function(value) {
-            console.error("Not allowed, please use model.set({" + key + ":" + value +"})");
+            console.error("[hermione.js] Not allowed, please use model.set({" + key + ":" +
+                          value +"})");
           }
         });
       });
@@ -384,7 +440,9 @@
   ***************************Validations***************************
   *****************************************************************/
 
-  var Validatable = Hermione.extend({
+  console.log("11");
+
+  Hermione = Hermione.extend({
 
   }, {
     validationErrors: function() {
@@ -440,6 +498,5 @@
     }
   });
 
-  window.Hermione = Validatable;
-
-})();
+  return Hermione;
+}));
