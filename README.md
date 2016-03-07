@@ -159,7 +159,7 @@ user.attrs.username.isDirty;
 
 #### isValid
 ```js
-var User = JsModel.extend({
+var User = Hermione.extend({
       name: "User",
       baseUrl: "http://your.website.net/",
       attrs: {  id: {primary: true, validations: {presence: true}},
