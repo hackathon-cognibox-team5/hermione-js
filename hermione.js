@@ -7,7 +7,7 @@
       global.fetch = require('fetch');
     }
     module.exports = factory(require('lodash'), require('pluralize'), require('validate'));
-  } else if ((typeof define === 'function') && (define.amd)) {
+  } else if ((typeof global.define === 'function') && (global.define.amd)) {
     var factoryWithPolyfills = function($Promise, $fetch, lodash, pluralize, validate) {
       if (typeof $Promise !== 'undefined') {
         $Promise.polyfill();
@@ -24,34 +24,34 @@
       return factory(lodash, pluralize, validate);
     };
     if (typeof global.Promise === 'undefined') {
-      define(['es6-promise','fetch','lodash','pluralize','validate'], factoryWithPolyfills);
+      global.define(['es6-promise','fetch','lodash','pluralize','validate'], factoryWithPolyfills);
     } else if (typeof global.fetch === 'undefined') {
-      define(['fetch','lodash','pluralize','validate'], factoryWithFetchPolyfill);
+      global.define(['fetch','lodash','pluralize','validate'], factoryWithFetchPolyfill);
     } else {
-      define(['lodash','pluralize','validate'], factory);
+      global.define(['lodash','pluralize','validate'], factory);
     }
   } else {
     global.Hermione = factory(global._, global.pluralize, global.validate);
   }
-}(this, function(_, pluralize, validate) {
+})(this, function(_, pluralize, validate) {
   if (typeof Promise === 'undefined') {
-    console.error("[hermione.js] Promise is undefined." +
-                  " Please load a Promise polyfill before loading Hermione.js");
+    console.error('[hermione.js] Promise is undefined.' +
+                  ' Please load a Promise polyfill before loading Hermione.js');
   }
   if (typeof fetch === 'undefined') {
-    console.error("[hermione.js] fetch is undefined." +
-                  " Please load a fetch polyfill before loading Hermione.js");
+    console.error('[hermione.js] fetch is undefined.' +
+                  ' Please load a fetch polyfill before loading Hermione.js');
   }
   if ((typeof _ === 'undefined') || (typeof _.VERSION === 'undefined'))  {
-    console.error("[hermione.js] lodash is undefined."+
-                  " Please load lodash before loading Hermione.js");
+    console.error('[hermione.js] lodash is undefined.'+
+                  ' Please load lodash before loading Hermione.js');
   }
   if (typeof pluralize === 'undefined') {
-    console.error("[hermione.js]pluralize is undefined. Please load before loading Hermione.js");
+    console.error('[hermione.js]pluralize is undefined. Please load before loading Hermione.js');
   }
   if ((typeof validate === 'undefined') || (typeof validate.version === 'undefined') ){
-    console.error("[hermione.js] validate.js is undefined." +
-                  " Please load validate.js before loading Hermione.js");
+    console.error('[hermione.js] validate.js is undefined.' +
+                  ' Please load validate.js before loading Hermione.js');
   }
   var attributeObjDefinition = {};
   var modelMapping = {};
@@ -86,7 +86,6 @@
         }
       }
     };
-
 
     var parentAttrObjValueProp = _.extend({}, defaultAttrProp._value, this.$class.$super.$attrOb && this.$class.$super.$attrOb._value);
     var parentAttrObj = _.extend({}, defaultAttrProp, this.$class.$super.$attrOb, { _value: parentAttrObjValueProp });
@@ -440,8 +439,6 @@
   ***************************Validations***************************
   *****************************************************************/
 
-  console.log("11");
-
   Hermione = Hermione.extend({
 
   }, {
@@ -470,7 +467,6 @@
   }, {
     _value: {
       set: function(value) {
-        console.log("????");
         if(this.$parent.$class.autoValidate !== false)
             this.validate();
 
@@ -499,4 +495,4 @@
   });
 
   return Hermione;
-}));
+});
